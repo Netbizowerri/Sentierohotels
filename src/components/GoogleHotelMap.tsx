@@ -132,9 +132,7 @@ export const GoogleHotelMap: React.FC = () => {
   const [travelMode, setTravelMode] = useState<'DRIVING' | 'TRANSIT'>('DRIVING');
   const [showSteps, setShowSteps] = useState(false);
 
-  const apiKey =
-    import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
-    'AIzaSyB6nx0Oy-HHx78_De61XweseZDMjaPNkfA';
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
   // Initialize Google Maps safely
   useEffect(() => {
