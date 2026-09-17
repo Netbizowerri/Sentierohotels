@@ -1,0 +1,389 @@
+import React, { useState, useMemo } from 'react';
+import {
+  Calendar,
+  Clock,
+  User,
+  Tag,
+  ArrowRight,
+  Search,
+  BookOpen,
+  Sparkles,
+  X,
+  Share2,
+  Check,
+} from 'lucide-react';
+import { BLOG_POSTS, BlogPost } from '../data/blogData';
+
+interface BlogSectionProps {
+  onBookNow: () => void;
+}
+
+export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [readingPost, setReadingPost] = useState<BlogPost | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    BLOG_POSTS.forEach((p) => cats.add(p.category));
+    return ['all', ...Array.from(cats)];
+  }, []);
+
+  const filteredPosts = useMemo(() => {
+    return BLOG_POSTS.filter((post) => {
+      const matchesCategory =
+        selectedCategory === 'all' || post.category === selectedCategory;
+      const query = searchQuery.toLowerCase().trim();
+      const matchesQuery =
+        !query ||
+        post.title.toLowerCase().includes(query) ||
+        post.excerpt.toLowerCase().includes(query) ||
+        post.tags.some((t) => t.toLowerCase().includes(query));
+      return matchesCategory && matchesQuery;
+    });
+  }, [selectedCategory, searchQuery]);
+
+  const featuredPost = useMemo(() => {
+    return BLOG_POSTS.find((p) => p.featured) || BLOG_POSTS[0];
+  }, []);
+
+  const handleShare = (post: BlogPost) => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: post.title,
+          text: post.excerpt,
+          url: window.location.href,
+        })
+        .catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  };
+
+  return (
+    <div className="py-6 sm:py-10 space-y-8 animate-in fade-in duration-300">
+      {/* Blog Hero Header */}
+      <div className="rounded-3xl bg-[#242E51] text-white p-6 sm:p-10 border border-[#CD9A29]/30 relative overflow-hidden shadow-xl">
+        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#CD9A29]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-2xl space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1B233F] text-[#CD9A29] text-xs font-bold border border-[#CD9A29]/30">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Sentiero Stories & Journal</span>
+          </div>
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-display text-white">
+            Insights, Luxury Guides & Hospitality Stories
+          </h1>
+          <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+            Discover life at Sentiero Hotels & Suites—from executive boardroom amenities
+            and poolside relaxation to culinary secrets and Sam Mbakwe Airport transit guides.
+          </p>
+        </div>
+      </div>
+
+      {/* Search & Categories */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Category Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3.5 py-2 rounded-full whitespace-nowrap font-semibold transition ${
+                selectedCategory === cat
+                  ? 'bg-[#242E51] text-white shadow-xs'
+                  : 'bg-white text-[#091626]/70 border border-[#242E51]/15 hover:border-[#CD9A29] hover:text-[#091626]'
+              }`}
+            >
+              {cat === 'all' ? 'All Stories' : cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative min-w-[240px]">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#242E51]/50" />
+          <input
+            type="text"
+            placeholder="Search articles & guides..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-full border border-[#242E51]/20 bg-white text-[#091626] focus:outline-none focus:ring-2 focus:ring-[#CD9A29]"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#091626]/40 hover:text-[#091626]"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Featured Story (Shown if viewing 'all' and no active search) */}
+      {selectedCategory === 'all' && !searchQuery && featuredPost && (
+        <div
+          onClick={() => setReadingPost(featuredPost)}
+          className="group cursor-pointer rounded-3xl overflow-hidden bg-white border border-[#242E51]/15 shadow-md hover:shadow-xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
+        >
+          <div className="lg:col-span-7 h-64 sm:h-80 lg:h-auto relative overflow-hidden bg-neutral-100">
+            <img
+              src={featuredPost.coverImage}
+              alt={featuredPost.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div className="absolute top-4 left-4">
+              <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-[#CD9A29] shadow-md">
+                Featured Highlight
+              </span>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-xs text-[#091626]/60">
+                <span className="px-2.5 py-0.5 rounded-md bg-[#242E51]/10 text-[#242E51] font-bold">
+                  {featuredPost.category}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-[#CD9A29]" />
+                  {featuredPost.readTime}
+                </span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#091626] font-display group-hover:text-[#242E51] transition">
+                {featuredPost.title}
+              </h2>
+
+              <p className="text-xs sm:text-sm text-[#091626]/70 line-clamp-3 leading-relaxed">
+                {featuredPost.excerpt}
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-[#091626]/70">
+                <Calendar className="w-3.5 h-3.5 text-[#CD9A29]" />
+                <span>{featuredPost.date}</span>
+              </div>
+
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#CD9A29] group-hover:translate-x-1 transition">
+                Read Story <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stories Grid */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg sm:text-xl font-extrabold text-[#091626] font-display">
+            {searchQuery
+              ? `Results for "${searchQuery}" (${filteredPosts.length})`
+              : selectedCategory === 'all'
+              ? 'All Articles & Stories'
+              : `${selectedCategory} (${filteredPosts.length})`}
+          </h3>
+        </div>
+
+        {filteredPosts.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-3xl border border-[#242E51]/15 p-8 space-y-3">
+            <BookOpen className="w-10 h-10 text-[#242E51]/40 mx-auto" />
+            <p className="text-sm text-[#091626]/80 font-medium">
+              No stories match your search criteria.
+            </p>
+            <button
+              onClick={() => {
+                setSelectedCategory('all');
+                setSearchQuery('');
+              }}
+              className="px-4 py-2 rounded-full bg-[#242E51] text-white text-xs font-bold hover:bg-[#1B233F]"
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPosts.map((post) => (
+              <article
+                key={post.id}
+                onClick={() => setReadingPost(post)}
+                className="group cursor-pointer rounded-3xl overflow-hidden bg-white border border-[#242E51]/15 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col"
+              >
+                <div className="h-48 relative overflow-hidden bg-neutral-100">
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-[#242E51] bg-white/95 shadow-xs">
+                      {post.category}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] text-[#091626]/50">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#CD9A29]" />
+                        {post.readTime}
+                      </span>
+                      <span>·</span>
+                      <span>{post.date}</span>
+                    </div>
+
+                    <h4 className="font-bold text-base text-[#091626] group-hover:text-[#242E51] transition line-clamp-2">
+                      {post.title}
+                    </h4>
+
+                    <p className="text-xs text-[#091626]/70 line-clamp-2 leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-[#091626]/70 truncate max-w-[150px]">
+                      By {post.author}
+                    </span>
+                    <span className="text-xs font-bold text-[#CD9A29] flex items-center gap-1 group-hover:translate-x-0.5 transition">
+                      Read <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Book CTA Banner */}
+      <div className="rounded-3xl bg-[#242E51] p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-[#CD9A29]/30">
+        <div>
+          <h4 className="text-lg sm:text-xl font-bold font-display">
+            Ready to Experience Sentiero in Person?
+          </h4>
+          <p className="text-xs sm:text-sm text-white/80 mt-1">
+            Book directly online with zero upfront deposit. Pay comfortably at check-in.
+          </p>
+        </div>
+        <button
+          onClick={onBookNow}
+          className="px-6 py-3 rounded-full bg-[#CD9A29] hover:bg-[#B88720] text-white font-bold text-xs sm:text-sm shadow-md transition active:scale-95 whitespace-nowrap"
+        >
+          Book Your Suite Now
+        </button>
+      </div>
+
+      {/* Article Reader Modal */}
+      {readingPost && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#242E51]/20 my-4 max-h-[92vh] flex flex-col">
+            {/* Header */}
+            <div className="p-4 sm:p-5 bg-[#242E51] text-white flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#CD9A29] text-white font-bold text-[11px]">
+                  {readingPost.category}
+                </span>
+                <span className="text-white/70">{readingPost.readTime}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleShare(readingPost)}
+                  className="w-8 h-8 rounded-full bg-[#1B233F] text-white flex items-center justify-center hover:bg-[#303D6A] transition text-xs"
+                  title="Share article"
+                >
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-[#CD9A29]" /> : <Share2 className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  onClick={() => setReadingPost(null)}
+                  className="w-8 h-8 rounded-full bg-[#1B233F] text-white flex items-center justify-center hover:bg-[#303D6A] transition"
+                  title="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#091626] font-display leading-tight">
+                  {readingPost.title}
+                </h2>
+                <div className="flex items-center gap-3 text-xs text-[#091626]/60 pt-1">
+                  <span className="flex items-center gap-1 font-semibold text-[#091626]">
+                    <User className="w-3.5 h-3.5 text-[#CD9A29]" />
+                    {readingPost.author} ({readingPost.authorRole})
+                  </span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-[#CD9A29]" />
+                    {readingPost.date}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cover photo */}
+              <div className="rounded-2xl overflow-hidden h-64 sm:h-80 bg-neutral-100 shadow-inner">
+                <img
+                  src={readingPost.coverImage}
+                  alt={readingPost.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Article Paragraphs */}
+              <div className="space-y-4 text-sm sm:text-base text-[#091626]/80 leading-relaxed font-sans">
+                {readingPost.content.map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+              </div>
+
+              {/* Tags */}
+              <div className="pt-4 border-t border-neutral-100 flex flex-wrap gap-2">
+                {readingPost.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#F2F2FF] text-[#242E51] text-xs font-medium border border-[#242E51]/10"
+                  >
+                    <Tag className="w-3 h-3 text-[#CD9A29]" />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* In-article CTA */}
+              <div className="p-5 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-sm text-[#091626]">
+                    Experience this hospitality at Sentiero
+                  </h4>
+                  <p className="text-xs text-[#091626]/60 mt-0.5">
+                    Just 2 minutes from Sam Mbakwe Cargo Airport with 24/7 power.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setReadingPost(null);
+                    onBookNow();
+                  }}
+                  className="px-5 py-2.5 rounded-full bg-[#242E51] hover:bg-[#1B233F] text-white text-xs font-bold shadow-md transition whitespace-nowrap"
+                >
+                  Book Your Suite
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

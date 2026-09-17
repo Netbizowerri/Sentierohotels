@@ -1,0 +1,6 @@
+{
+  "name": "Sentiero Hotels & Suites",
+  "description": "Modern luxury hotel booking web application for Sentiero Hotels & Suites near Sam Mbakwe Airport, Imo State, featuring suite reservations, amenities, and contact services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
