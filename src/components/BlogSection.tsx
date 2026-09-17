@@ -11,6 +11,8 @@ import {
   X,
   Share2,
   Check,
+  Images,
+  Maximize2,
 } from 'lucide-react';
 import { BLOG_POSTS, BlogPost } from '../data/blogData';
 
@@ -23,6 +25,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [readingPost, setReadingPost] = useState<BlogPost | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -136,11 +139,18 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
               alt={featuredPost.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
+              referrerPolicy="no-referrer"
             />
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 left-4 flex items-center gap-2">
               <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-[#CD9A29] shadow-md">
                 Featured Highlight
               </span>
+              {featuredPost.galleryImages && featuredPost.galleryImages.length > 0 && (
+                <span className="px-2.5 py-1 rounded-full text-xs font-semibold text-white bg-black/60 backdrop-blur-xs flex items-center gap-1">
+                  <Images className="w-3.5 h-3.5 text-[#CD9A29]" />
+                  <span>{featuredPost.galleryImages.length + 1} Photos</span>
+                </span>
+              )}
             </div>
           </div>
 
@@ -167,8 +177,8 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
 
             <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-[#091626]/70">
-                <Calendar className="w-3.5 h-3.5 text-[#CD9A29]" />
-                <span>{featuredPost.date}</span>
+                <User className="w-3.5 h-3.5 text-[#CD9A29]" />
+                <span className="font-medium">Written by {featuredPost.author}</span>
               </div>
 
               <span className="inline-flex items-center gap-1 text-xs font-bold text-[#CD9A29] group-hover:translate-x-1 transition">
@@ -221,11 +231,18 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
                     alt={post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
+                    referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-3 left-3">
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-[#242E51] bg-white/95 shadow-xs">
                       {post.category}
                     </span>
+                    {post.galleryImages && post.galleryImages.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/60 backdrop-blur-xs flex items-center gap-1">
+                        <Images className="w-3 h-3 text-[#CD9A29]" />
+                        <span>{post.galleryImages.length + 1} Photos</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -251,7 +268,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
 
                   <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-[#091626]/70 truncate max-w-[150px]">
-                      By {post.author}
+                      Written by {post.author}
                     </span>
                     <span className="text-xs font-bold text-[#CD9A29] flex items-center gap-1 group-hover:translate-x-0.5 transition">
                       Read <ArrowRight className="w-3.5 h-3.5" />
@@ -321,7 +338,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
                 <div className="flex items-center gap-3 text-xs text-[#091626]/60 pt-1">
                   <span className="flex items-center gap-1 font-semibold text-[#091626]">
                     <User className="w-3.5 h-3.5 text-[#CD9A29]" />
-                    {readingPost.author} ({readingPost.authorRole})
+                    Written by {readingPost.author}
                   </span>
                   <span>·</span>
                   <span className="flex items-center gap-1">
@@ -332,20 +349,71 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
               </div>
 
               {/* Cover photo */}
-              <div className="rounded-2xl overflow-hidden h-64 sm:h-80 bg-neutral-100 shadow-inner">
+              <div
+                onClick={() => setEnlargedImage(readingPost.coverImage)}
+                className="group/cover relative rounded-2xl overflow-hidden h-64 sm:h-80 bg-neutral-100 shadow-inner cursor-pointer"
+              >
                 <img
                   src={readingPost.coverImage}
                   alt={readingPost.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover/cover:scale-102 transition duration-500"
+                  referrerPolicy="no-referrer"
                 />
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/cover:opacity-100 transition flex items-center justify-center">
+                  <span className="px-3 py-1.5 rounded-full bg-white/90 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-md">
+                    <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
+                    <span>View Cover Image</span>
+                  </span>
+                </div>
               </div>
 
               {/* Article Paragraphs */}
-              <div className="space-y-4 text-sm sm:text-base text-[#091626]/80 leading-relaxed font-sans">
+              <div className="space-y-4 text-sm sm:text-base text-[#091626]/85 leading-relaxed font-sans">
                 {readingPost.content.map((para, i) => (
-                  <p key={i}>{para}</p>
+                  <p key={i} className="leading-relaxed">
+                    {para}
+                  </p>
                 ))}
               </div>
+
+              {/* Photo Gallery - Other Images */}
+              {readingPost.galleryImages && readingPost.galleryImages.length > 0 && (
+                <div className="pt-4 border-t border-neutral-100 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-bold text-[#091626]">
+                      <Images className="w-4 h-4 text-[#CD9A29]" />
+                      <span>Property Photo Highlights</span>
+                    </div>
+                    <span className="text-xs text-[#091626]/50">
+                      {readingPost.galleryImages.length} additional photos · Click to enlarge
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {readingPost.galleryImages.map((imgUrl, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => setEnlargedImage(imgUrl)}
+                        className="group/img relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-100 border border-[#242E51]/10 cursor-pointer shadow-xs hover:shadow-md transition"
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`${readingPost.title} photo ${idx + 1}`}
+                          className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
+                            <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
+                            <span>Enlarge Photo</span>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Tags */}
               <div className="pt-4 border-t border-neutral-100 flex flex-wrap gap-2">
@@ -381,6 +449,30 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enlarged Image Lightbox */}
+      {enlargedImage && (
+        <div
+          className="fixed inset-0 z-60 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setEnlargedImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+            <button
+              onClick={() => setEnlargedImage(null)}
+              className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition"
+              title="Close image"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={enlargedImage}
+              alt="Enlarged view"
+              className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl border border-white/20"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

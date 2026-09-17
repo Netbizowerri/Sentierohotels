@@ -94,6 +94,17 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, onOpenDetail }) =>
             <li>
               <button
                 onClick={() => {
+                  setActiveTab('blogs');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="text-white/80 hover:text-[#CD9A29] transition"
+              >
+                Blogs & Stories
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => {
                   setActiveTab('contact');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
