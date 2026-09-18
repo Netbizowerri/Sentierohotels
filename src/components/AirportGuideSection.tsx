@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plane, Clock, ShieldCheck, Car, PhoneCall, Check, ArrowRight } from 'lucide-react';
+import { sendLeadToCrm } from '../services/crmService';
 
 interface AirportGuideSectionProps {
   onBookShuttle: () => void;
@@ -8,11 +9,24 @@ interface AirportGuideSectionProps {
 export const AirportGuideSection: React.FC<AirportGuideSectionProps> = ({ onBookShuttle }) => {
   const [flightNo, setFlightNo] = useState('');
   const [terminalType, setTerminalType] = useState('arrival');
+  const [passengerPhone, setPassengerPhone] = useState('');
   const [shuttleRequested, setShuttleRequested] = useState(false);
 
   const handleQuickShuttleRequest = (e: React.FormEvent) => {
     e.preventDefault();
     setShuttleRequested(true);
+
+    sendLeadToCrm({
+      name: `Airport Shuttle Guest (${flightNo.toUpperCase()})`,
+      phone: passengerPhone || 'Provided via Front Desk',
+      source: 'Airport Shuttle Dispatch',
+      notes: `Service Type: ${terminalType === 'arrival' ? 'Airport Pickup (Arrival)' : 'Airport Drop-off (Departure)'}. Flight Number: ${flightNo.toUpperCase()}. Phone: ${passengerPhone}`,
+      custom_fields: {
+        'Service Type': terminalType === 'arrival' ? 'Pickup (Arrival)' : 'Drop-off (Departure)',
+        'Flight Number': flightNo.toUpperCase(),
+        'Passenger Phone': passengerPhone || 'Not provided',
+      },
+    });
   };
 
   return (
@@ -120,7 +134,7 @@ export const AirportGuideSection: React.FC<AirportGuideSectionProps> = ({ onBook
               </div>
             ) : (
               <form onSubmit={handleQuickShuttleRequest} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-[#091626] mb-1">
                       Service Type
@@ -150,6 +164,20 @@ export const AirportGuideSection: React.FC<AirportGuideSectionProps> = ({ onBook
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-xs font-semibold text-[#091626] mb-1">
+                    Contact Phone / WhatsApp (for Driver Coordination)
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +234 800 000 0000"
+                    value={passengerPhone}
+                    onChange={(e) => setPassengerPhone(e.target.value)}
+                    className="w-full text-xs py-2 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626]"
+                    required
+                  />
+                </div>
+
                 <button
                   type="submit"
                   className="w-full py-2.5 rounded-full bg-[#CD9A29] hover:bg-[#B88720] text-white text-xs font-bold transition shadow-xs flex items-center justify-center gap-2"
@@ -164,11 +192,11 @@ export const AirportGuideSection: React.FC<AirportGuideSectionProps> = ({ onBook
           <div className="mt-5 pt-4 border-t border-neutral-100 flex items-center justify-between text-xs text-[#091626]/70">
             <span>Direct Airport Dispatch Hotline:</span>
             <a
-              href="tel:+2348034567890"
+              href="tel:+2349022842982"
               className="font-bold text-[#242E51] hover:text-[#CD9A29] flex items-center gap-1 transition"
             >
               <PhoneCall className="w-3.5 h-3.5 text-[#CD9A29]" />
-              +234 803 456 7890
+              (+234) 09022842982
             </a>
           </div>
         </div>

@@ -8,7 +8,6 @@ import {
   Plane,
   Sparkles,
   ArrowRight,
-  Wand2,
 } from 'lucide-react';
 import { DisintegrationSlider, DisintegrationStyle } from './DisintegrationSlider';
 
@@ -26,6 +25,11 @@ interface HeroSlide {
   caption: string;
 }
 
+// Utility to ensure the beginning of every word is capital (e.g. "Poolside View")
+const toTitleCase = (str: string): string => {
+  return str.replace(/\b([a-z])/g, (_, char) => char.toUpperCase());
+};
+
 const HERO_SLIDES: HeroSlide[] = [
   {
     id: 1,
@@ -36,14 +40,14 @@ const HERO_SLIDES: HeroSlide[] = [
   {
     id: 2,
     image: 'https://i.ibb.co/fVwqt5vF/untitled-8964.jpg',
-    tag: 'World-class Luxury',
-    caption: 'World-class Luxury · Executive VIP boardroom, high-speed fiber internet, and premium business services.',
+    tag: 'World-Class Luxury',
+    caption: 'World-Class Luxury · Executive VIP boardroom, high-speed fiber internet, and premium business services.',
   },
   {
     id: 3,
     image: 'https://i.ibb.co/ZzPmMSbF/untitled-8961-1.jpg',
-    tag: 'Elegantly furnished suites',
-    caption: 'Elegantly furnished suites · Artisan interior décor, plush bedding, and 24/7 climate-controlled comfort.',
+    tag: 'Elegantly Furnished Suites',
+    caption: 'Elegantly Furnished Suites · Artisan interior décor, plush bedding, and 24/7 climate-controlled comfort.',
   },
   {
     id: 4,
@@ -60,20 +64,20 @@ const HERO_SLIDES: HeroSlide[] = [
   {
     id: 6,
     image: 'https://i.ibb.co/bMKDG4pW/untitled-89851.jpg',
-    tag: 'The poolside',
-    caption: 'The poolside · Unwind under the sun, take a refreshing dip, or enjoy daytime relaxation with poolside cocktail service.',
+    tag: 'The Poolside',
+    caption: 'The Poolside · Unwind under the sun, take a refreshing dip, or enjoy daytime relaxation with poolside cocktail service.',
   },
   {
     id: 7,
     image: 'https://i.ibb.co/chnn6tvV/untitled-8966.jpg',
-    tag: 'Well-stocked main bar',
-    caption: 'Well-stocked main bar · Fine vintage wines, premium spirits, craft cocktails, and master chef delicacies.',
+    tag: 'Well-Stocked Main Bar',
+    caption: 'Well-Stocked Main Bar · Fine vintage wines, premium spirits, craft cocktails, and master chef delicacies.',
   },
   {
     id: 8,
     image: 'https://i.ibb.co/BVsCdv2c/untitled-8987.jpg',
-    tag: 'Cosy poolside bar',
-    caption: 'Cosy poolside bar · Intimate evening drinks, tropical cocktails, and open-air refreshments under the stars.',
+    tag: 'Cosy Poolside Bar',
+    caption: 'Cosy Poolside Bar · Intimate evening drinks, tropical cocktails, and open-air refreshments under the stars.',
   },
 ];
 
@@ -86,7 +90,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const [previousImage, setPreviousImage] = useState<string | null>(null);
   const [slideDirection, setSlideDirection] = useState<'next' | 'prev'>('next');
-  const [disintegrationStyle, setDisintegrationStyle] = useState<DisintegrationStyle>('shatter');
+  const disintegrationStyle: DisintegrationStyle = 'shatter';
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
@@ -107,12 +111,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     setPreviousImage(HERO_SLIDES[currentSlide].image);
     setSlideDirection(index > currentSlide ? 'next' : 'prev');
     setCurrentSlide(index);
-  };
-
-  const cycleDisintegrationStyle = () => {
-    const styles: DisintegrationStyle[] = ['shatter', 'sweep', 'vortex'];
-    const nextIdx = (styles.indexOf(disintegrationStyle) + 1) % styles.length;
-    setDisintegrationStyle(styles[nextIdx]);
   };
 
   // Auto-play interval
@@ -212,26 +210,12 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
           {/* TOP BAR: Minimalistic & unobtrusive to leave photo open */}
           <div className="relative z-20 flex items-center justify-between gap-2">
-            {/* Value Props Badges & FX Mode Selector */}
+            {/* Value Props Badge */}
             <div className="flex items-center gap-1.5">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-[#242E51]/80 text-white backdrop-blur-md border border-white/20 shadow-xs">
                 <Plane className="w-3.5 h-3.5 text-[#CD9A29]" />
                 2 Mins to Airport
               </span>
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  cycleDisintegrationStyle();
-                }}
-                className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-black/60 hover:bg-[#CD9A29] text-white backdrop-blur-md border border-white/20 shadow-xs transition cursor-pointer"
-                title="Click to toggle Disintegration & Reintegration effect style"
-              >
-                <Wand2 className="w-3 h-3 text-[#CD9A29] group-hover:text-white" />
-                <span className="hidden xs:inline text-white/70">FX:</span>
-                <span className="capitalize">{disintegrationStyle}</span>
-              </button>
             </div>
 
             {/* Slide Index Pill */}
@@ -241,7 +225,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               <span className="text-white/70">{String(HERO_SLIDES.length).padStart(2, '0')}</span>
               <span className="hidden md:inline text-white/30">·</span>
               <span className="hidden md:inline font-sans font-medium text-white/90 truncate max-w-[240px]">
-                {current.tag}
+                {toTitleCase(current.tag)}
               </span>
             </div>
           </div>
@@ -271,10 +255,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
           {/* BOTTOM HERO CONTENT: Compact on mobile so users clearly see the entire image */}
           <div className="relative z-20 max-w-2xl mt-auto">
-            {/* Slide Tag: prominent label for each slide */}
+            {/* Slide Tag: prominent label for each slide with Title Case */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-[#CD9A29] text-white text-[10px] sm:text-xs font-bold tracking-wide mb-1.5 sm:mb-2.5 shadow-md">
               <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-white shrink-0" />
-              <span>{current.tag}</span>
+              <span>{toTitleCase(current.tag)}</span>
             </div>
 
             {/* "Sentiero Hotels & Suites" text with WHITE BACKGROUND COLOR */}

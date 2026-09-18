@@ -208,7 +208,7 @@ export const GoogleHotelMap: React.FC = () => {
               <div style="font-size: 14px; font-weight: 800; color: #242E51; margin: 3px 0 6px 0;">Sentiero Hotels & Suites</div>
               <div style="font-size: 12px; color: #4B5563; line-height: 1.4;">Imo Airport Road, off Owerri-Aba Express Way, Ngor-Okpala, Imo State</div>
               <div style="margin-top: 6px; font-size: 11px; font-weight: bold; color: #10B981;">✈️ 2 Mins to Sam Mbakwe Airport</div>
-              <div style="margin-top: 4px; font-size: 11px; color: #242E51; font-weight: 600;">📞 24/7 Front Desk: +234 814 990 0012</div>
+              <div style="margin-top: 4px; font-size: 11px; color: #242E51; font-weight: 600;">📞 24/7 Front Desk: (+234) 09022842982</div>
             </div>
           `;
           const infoWindow = new InfoWindowClass({
@@ -841,7 +841,7 @@ export const GoogleHotelMap: React.FC = () => {
             </div>
           </div>
           <a
-            href={`https://wa.me/2348149900012?text=${encodeURIComponent(
+            href={`https://wa.me/2349022842982?text=${encodeURIComponent(
               'Hello Sentiero Hotels Front Desk, I am landing at Sam Mbakwe Airport and request the airport shuttle dispatch.'
             )}`}
             target="_blank"

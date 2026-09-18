@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Copy,
   Printer,
+  Mail,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { RoomSuite, Reservation, Currency } from '../types/hotel';
@@ -20,6 +21,7 @@ import {
   getTodayDateString,
   getTomorrowDateString,
 } from '../utils/formatters';
+import { sendLeadToCrm } from '../services/crmService';
 
 interface BookingModalProps {
   suite: RoomSuite | null;
@@ -98,6 +100,27 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     onReservationComplete(reservation);
     setStep(3);
 
+    // Forward lead securely to Privyr CRM via backend server proxy
+    sendLeadToCrm({
+      name: guestName,
+      email: guestEmail || undefined,
+      phone: guestPhone,
+      source: 'Room Booking',
+      notes: `New Room Reservation for ${suite.name} (${nights} night${nights > 1 ? 's' : ''}). Check-in: ${checkInDate}, Check-out: ${checkOutDate}. Guests: ${adults} Adult(s), ${children} Child(ren). Ref: ${reservation.bookingRef}. Special requests: ${specialRequests || 'None'}. Total: ₦${totalNgn.toLocaleString()} ($${totalUsd}).`,
+      custom_fields: {
+        'Booking Ref': reservation.bookingRef,
+        'Suite Name': suite.name,
+        'Check-In Date': checkInDate,
+        'Check-Out Date': checkOutDate,
+        'Nights': nights,
+        'Adults': adults,
+        'Children': children,
+        'Total NGN': `₦${totalNgn.toLocaleString()}`,
+        'Total USD': `$${totalUsd}`,
+        'Special Requests': specialRequests || 'None',
+      },
+    });
+
     // Festive confetti animation
     try {
       confetti({
@@ -124,7 +147,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     const text = encodeURIComponent(
       `Hello Sentiero Hotels & Suites, I just booked the ${confirmedReservation.suiteName}!\nBooking Ref: ${confirmedReservation.bookingRef}\nGuest: ${confirmedReservation.guestName}\nCheck-in: ${confirmedReservation.checkInDate}\nCheck-out: ${confirmedReservation.checkOutDate}`
     );
-    window.open(`https://wa.me/2348149900012?text=${text}`, '_blank');
+    window.open(`https://wa.me/2349022842982?text=${text}`, '_blank');
+  };
+
+  const handleEmailAdminConfirmation = () => {
+    if (!confirmedReservation) return;
+    const subject = encodeURIComponent(
+      `New Room Booking: ${confirmedReservation.suiteName} (Ref: ${confirmedReservation.bookingRef})`
+    );
+    const body = encodeURIComponent(
+      `Hello Sentiero Admin,\n\nA new room booking has been completed on the website:\n\nBooking Ref: ${confirmedReservation.bookingRef}\nGuest Name: ${confirmedReservation.guestName}\nGuest Phone: ${confirmedReservation.guestPhone}\nGuest Email: ${confirmedReservation.guestEmail}\nSuite: ${confirmedReservation.suiteName}\nCheck-in: ${confirmedReservation.checkInDate}\nCheck-out: ${confirmedReservation.checkOutDate}\nTotal Guests: ${confirmedReservation.guestsCount}\nSpecial Requests: ${confirmedReservation.specialRequests || 'None'}\n\nPlease review and attend to this guest promptly.`
+    );
+    window.open(`mailto:netbiz0925@gmail.com,reservations@sentierohotels.com.ng?subject=${subject}&body=${body}`, '_blank');
   };
 
   return (
@@ -452,6 +486,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Send Confirmation to Hotel WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={handleEmailAdminConfirmation}
+                  className="w-full py-2.5 rounded-full bg-[#242E51] hover:bg-[#1B233F] text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4 text-[#CD9A29]" />
+                  <span>Send Reservation to Admin Gmail</span>
                 </button>
 
                 <button

@@ -8,9 +8,14 @@ export const SENTIERO_INFO = {
     "At Sentiero Hotels and Suites, we'll give you that luxurious and serene environment that you need to truly relax. With your comfort comes security which includes hitech CCTV coverage of the entire facility and fortified 24/7 security.",
   airportPitch:
     "With just a 2-minutes drive to the Sam Mbakwe Airport, Imo State, Sentiero Hotels and Suites is perfectly situated so you'll never miss your flight ever again.",
-  address: 'Airport Road, near Sam Mbakwe International Cargo Airport, Owerri, Imo State, Nigeria',
-  phone: '+234 803 456 7890',
-  whatsapp: '+234 814 990 0012',
+  address: 'Imo State Airport Road (Just 2 minutes from the terminal), Owerri, Imo State, Nigeria',
+  phone: '(+234) 09022842982',
+  phoneAlt: '(+234) 09060 121 582',
+  phone1Raw: '+2349022842982',
+  phone2Raw: '+2349060121582',
+  whatsapp: '(+234) 09022842982',
+  whatsappRaw: '2349022842982',
+  website: 'https://www.sentierohotels.com.ng/',
   email: 'reservations@sentierohotels.com',
   checkInTime: 'From 2:00 PM',
   checkOutTime: 'Before 12:00 PM',
@@ -269,7 +274,7 @@ export const FAQS = [
   },
   {
     q: 'Is power supply guaranteed throughout the stay?',
-    a: 'Yes! We run an advanced hybrid solar installation backed by dual industrial standby power plants, delivering seamless 24/7 electricity and air conditioning without interruption.',
+    a: 'Yes! Sentiero Hotels is officially connected to the Orashi Power Project, delivering seamless 24/7 uninterrupted electricity and cool air conditioning without a single blink or downtime.',
   },
   {
     q: 'What security measures are in place?',

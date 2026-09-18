@@ -9,10 +9,12 @@ import {
   ChevronDown,
   Building2,
   Navigation,
+  Globe,
 } from 'lucide-react';
 import { SENTIERO_INFO, FAQS } from '../data/hotelData';
 import { GoogleHotelMap } from './GoogleHotelMap';
 import { ErrorBoundary } from './ErrorBoundary';
+import { sendLeadToCrm } from '../services/crmService';
 
 export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +30,18 @@ export const ContactSection: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+
+    sendLeadToCrm({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      source: 'Contact Inquiry',
+      notes: `Inquiry Type: ${formData.inquiryType}. Message: ${formData.message}`,
+      custom_fields: {
+        'Inquiry Type': formData.inquiryType,
+        'Message': formData.message,
+      },
+    });
   };
 
   const toggleFaq = (index: number) => {
@@ -178,14 +192,21 @@ export const ContactSection: React.FC = () => {
               <div>
                 <h4 className="font-bold text-sm text-[#091626]">Chat on WhatsApp</h4>
                 <p className="text-xs text-[#091626]/60">Instant concierge booking & inquiries</p>
-                <span className="text-xs font-bold text-[#CD9A29]">{SENTIERO_INFO.whatsapp}</span>
+                <a
+                  href={`https://wa.me/${SENTIERO_INFO.whatsappRaw}?text=${encodeURIComponent('Hello Sentiero Hotels & Suites, I would like to make an inquiry.')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-bold text-[#CD9A29] hover:underline"
+                >
+                  {SENTIERO_INFO.whatsapp}
+                </a>
               </div>
             </div>
             <a
-              href={`https://wa.me/2348149900012?text=${encodeURIComponent('Hello Sentiero Hotels & Suites, I would like to make an inquiry.')}`}
+              href={`https://wa.me/${SENTIERO_INFO.whatsappRaw}?text=${encodeURIComponent('Hello Sentiero Hotels & Suites, I would like to make an inquiry.')}`}
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-2 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold transition shrink-0"
+              className="px-4 py-2 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold transition shrink-0 shadow-xs"
             >
               Open Chat
             </a>
@@ -197,12 +218,56 @@ export const ContactSection: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-[#242E51]/10 flex items-center justify-center text-[#242E51] shrink-0">
                 <Phone className="w-4 h-4 text-[#CD9A29]" />
               </div>
+              <div className="flex-1">
+                <span className="text-[11px] font-bold uppercase text-[#091626]/50">
+                  Bookings & Inquiries (24/7)
+                </span>
+                <div className="space-y-1 mt-1">
+                  <div>
+                    <a
+                      href={`tel:${SENTIERO_INFO.phone1Raw}`}
+                      className="text-xs font-bold text-[#091626] hover:text-[#CD9A29] transition inline-flex items-center gap-2"
+                    >
+                      <span>Line 1: {SENTIERO_INFO.phone}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366] font-bold">
+                        WhatsApp
+                      </span>
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href={`tel:${SENTIERO_INFO.phone2Raw}`}
+                      className="text-xs font-bold text-[#091626] hover:text-[#CD9A29] transition inline-block"
+                    >
+                      Line 2: {SENTIERO_INFO.phoneAlt}
+                    </a>
+                  </div>
+                </div>
+                <span className="text-[11px] text-[#CD9A29] font-semibold block mt-1">
+                  24/7 Front Desk Hotline · Orashi Power Connection
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-[#242E51]/10 flex items-center justify-center text-[#242E51] shrink-0">
+                <Globe className="w-4 h-4 text-[#CD9A29]" />
+              </div>
               <div>
                 <span className="text-[11px] font-bold uppercase text-[#091626]/50">
-                  Front Desk Reservations
+                  Official Website
                 </span>
-                <p className="text-xs font-bold text-[#091626] mt-0.5">{SENTIERO_INFO.phone}</p>
-                <span className="text-[11px] text-[#CD9A29] font-semibold">Available 24/7</span>
+                <p className="text-xs font-bold text-[#091626] mt-0.5">
+                  <a
+                    href={SENTIERO_INFO.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#242E51] hover:text-[#CD9A29] underline underline-offset-2 transition"
+                  >
+                    {SENTIERO_INFO.website}
+                  </a>
+                </p>
+                <span className="text-[11px] text-[#091626]/60">Direct room reservations & verified rates</span>
               </div>
             </div>
 
@@ -227,7 +292,7 @@ export const ContactSection: React.FC = () => {
                 <span className="text-[11px] font-bold uppercase text-[#091626]/50">Location</span>
                 <p className="text-xs font-bold text-[#091626] mt-0.5">{SENTIERO_INFO.address}</p>
                 <span className="text-[11px] text-[#CD9A29] font-bold">
-                  2 Minutes Drive to Airport Gates
+                  Just 2 Minutes from Airport Terminal Gates
                 </span>
               </div>
             </div>

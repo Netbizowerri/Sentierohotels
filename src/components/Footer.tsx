@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, onOpenDetail }) =>
           </p>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1B233F] border border-[#CD9A29]/40 text-[#CD9A29] font-semibold text-[11px]">
             <span className="w-2 h-2 rounded-full bg-[#CD9A29] animate-pulse"></span>
-            Solar 24/7 Power · 24/7 Fortified Security
+            24/7 Orashi Power Project · Fortified Security
           </div>
         </div>
 
@@ -119,7 +119,20 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab, onOpenDetail }) =>
         <div className="space-y-2">
           <h5 className="font-bold text-xs text-[#CD9A29] uppercase tracking-wider mb-3">Airport Location</h5>
           <p className="text-white/80">{SENTIERO_INFO.address}</p>
-          <p className="font-semibold text-white">{SENTIERO_INFO.phone}</p>
+          <div className="space-y-0.5 pt-1">
+            <p className="font-semibold text-white">Line 1: {SENTIERO_INFO.phone}</p>
+            <p className="text-white/80 text-[11px]">Line 2: {SENTIERO_INFO.phoneAlt}</p>
+          </div>
+          <p className="text-white/80 pt-1">
+            <a
+              href={SENTIERO_INFO.website}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[#CD9A29] transition underline underline-offset-2"
+            >
+              sentierohotels.com.ng
+            </a>
+          </p>
           <p className="text-white/80">{SENTIERO_INFO.email}</p>
           <p className="text-white/60 text-[11px] pt-1">
             Check-in: {SENTIERO_INFO.checkInTime} · Check-out: {SENTIERO_INFO.checkOutTime}

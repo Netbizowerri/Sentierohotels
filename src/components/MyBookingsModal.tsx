@@ -111,7 +111,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
                 <div className="flex items-center justify-between pt-1">
                   <a
-                    href={`https://wa.me/2348149900012?text=${encodeURIComponent(`Hello Sentiero Front Desk, inquiry about my reservation ref ${item.bookingRef} for ${item.guestName}`)}`}
+                    href={`https://wa.me/2349022842982?text=${encodeURIComponent(`Hello Sentiero Front Desk, inquiry about my reservation ref ${item.bookingRef} for ${item.guestName}`)}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-xs text-[#25D366] hover:text-[#20ba59] font-bold flex items-center gap-1"

@@ -367,53 +367,100 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
                 </div>
               </div>
 
-              {/* Article Paragraphs */}
+              {/* Article Paragraphs with optional inline gallery */}
               <div className="space-y-4 text-sm sm:text-base text-[#091626]/85 leading-relaxed font-sans">
                 {readingPost.content.map((para, i) => (
-                  <p key={i} className="leading-relaxed">
-                    {para}
-                  </p>
+                  <React.Fragment key={i}>
+                    <p className="leading-relaxed">{para}</p>
+                    {readingPost.inlineGalleryIndex === i &&
+                      readingPost.galleryImages &&
+                      readingPost.galleryImages.length > 0 && (
+                        <div className="py-4 my-2 border-y border-neutral-100 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm font-bold text-[#091626]">
+                              <Images className="w-4 h-4 text-[#CD9A29]" />
+                              <span>Property & Experience Photo Highlights</span>
+                            </div>
+                            <span className="text-xs text-[#091626]/50">
+                              {readingPost.galleryImages.length} photos · Click to enlarge
+                            </span>
+                          </div>
+
+                          <div
+                            className={`grid grid-cols-1 sm:grid-cols-2 ${
+                              readingPost.galleryImages.length === 3
+                                ? 'md:grid-cols-3'
+                                : 'md:grid-cols-2 lg:grid-cols-4'
+                            } gap-3`}
+                          >
+                            {readingPost.galleryImages.map((imgUrl, idx) => (
+                              <div
+                                key={idx}
+                                onClick={() => setEnlargedImage(imgUrl)}
+                                className="group/img relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-100 border border-[#242E51]/10 cursor-pointer shadow-xs hover:shadow-md transition"
+                              >
+                                <img
+                                  src={imgUrl}
+                                  alt={`${readingPost.title} photo ${idx + 1}`}
+                                  className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
+                                  loading="lazy"
+                                  referrerPolicy="no-referrer"
+                                />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                  <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
+                                    <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
+                                    <span>Enlarge Photo</span>
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                  </React.Fragment>
                 ))}
               </div>
 
-              {/* Photo Gallery - Other Images */}
-              {readingPost.galleryImages && readingPost.galleryImages.length > 0 && (
-                <div className="pt-4 border-t border-neutral-100 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-bold text-[#091626]">
-                      <Images className="w-4 h-4 text-[#CD9A29]" />
-                      <span>Property Photo Highlights</span>
-                    </div>
-                    <span className="text-xs text-[#091626]/50">
-                      {readingPost.galleryImages.length} additional photos · Click to enlarge
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {readingPost.galleryImages.map((imgUrl, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => setEnlargedImage(imgUrl)}
-                        className="group/img relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-100 border border-[#242E51]/10 cursor-pointer shadow-xs hover:shadow-md transition"
-                      >
-                        <img
-                          src={imgUrl}
-                          alt={`${readingPost.title} photo ${idx + 1}`}
-                          className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
-                            <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
-                            <span>Enlarge Photo</span>
-                          </span>
-                        </div>
+              {/* Photo Gallery - Other Images (if not rendered inline) */}
+              {readingPost.inlineGalleryIndex === undefined &&
+                readingPost.galleryImages &&
+                readingPost.galleryImages.length > 0 && (
+                  <div className="pt-4 border-t border-neutral-100 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm font-bold text-[#091626]">
+                        <Images className="w-4 h-4 text-[#CD9A29]" />
+                        <span>Property Photo Highlights</span>
                       </div>
-                    ))}
+                      <span className="text-xs text-[#091626]/50">
+                        {readingPost.galleryImages.length} additional photos · Click to enlarge
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {readingPost.galleryImages.map((imgUrl, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => setEnlargedImage(imgUrl)}
+                          className="group/img relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-100 border border-[#242E51]/10 cursor-pointer shadow-xs hover:shadow-md transition"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`${readingPost.title} photo ${idx + 1}`}
+                            className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
+                              <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
+                              <span>Enlarge Photo</span>
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Tags */}
               <div className="pt-4 border-t border-neutral-100 flex flex-wrap gap-2">
