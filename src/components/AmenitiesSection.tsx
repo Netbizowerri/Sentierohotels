@@ -126,7 +126,7 @@ export const AmenitiesSection: React.FC<AmenitiesSectionProps> = ({ onBookNow })
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-sentiero-dots border border-[#242E51]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                     {getAmenityIcon(amenity.icon)}
                   </div>
                   {amenity.badge && (
@@ -175,7 +175,7 @@ export const AmenitiesSection: React.FC<AmenitiesSectionProps> = ({ onBookNow })
               </div>
             </div>
 
-            <div className="p-5 space-y-4 bg-[#F2F2FF]">
+            <div className="p-5 space-y-4 bg-sentiero-dots">
               <p className="text-xs sm:text-sm text-[#091626]/80 leading-relaxed">
                 {activeAmenity.description}
               </p>

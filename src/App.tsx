@@ -11,20 +11,85 @@ import { AirportGuideSection } from './components/AirportGuideSection';
 import { ContactSection } from './components/ContactSection';
 import { AboutUsSection } from './components/AboutUsSection';
 import { BlogSection } from './components/BlogSection';
+import { BlogPostPage } from './components/BlogPostPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MyBookingsModal } from './components/MyBookingsModal';
 import { NotificationsModal } from './components/NotificationsModal';
 import { SearchFilterDrawer } from './components/SearchFilterDrawer';
 import { WhatsAppFloat } from './components/WhatsAppFloat';
 import { SUITES_DATA } from './data/hotelData';
+import { BLOG_POSTS, BlogPost } from './data/blogData';
 import { RoomSuite, Currency, Reservation, SearchFilterState } from './types/hotel';
 import { SlidersHorizontal, ArrowUpDown, Calendar } from 'lucide-react';
 import { getTodayDateString, getTomorrowDateString } from './utils/formatters';
+import { sanitizeReservations } from './utils/sanitize';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const initialSlug = window.location.pathname.match(/^\/blog\/([^/]+)/)?.[1];
+    return initialSlug ? 'blogs' : 'home';
+  });
   const [currency, setCurrency] = useState<Currency>('NGN');
   const [isMobilePreview, setIsMobilePreview] = useState<boolean>(false);
+
+  // Read the current blog post slug from the URL path (/blog/:slug), if any.
+  const [blogSlug, setBlogSlug] = useState<string | null>(() => {
+    const match = window.location.pathname.match(/^\/blog\/([^/]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  });
+
+  const openBlogPost = (slug: string) => {
+    window.history.pushState({}, '', `/blog/${slug}`);
+    setBlogSlug(slug);
+    setActiveTab('blogs');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const closeBlogPost = () => {
+    window.history.pushState({}, '', '/');
+    setBlogSlug(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTabChange = (tab: string) => {
+    if (blogSlug) {
+      window.history.pushState({}, '', '/');
+      setBlogSlug(null);
+    }
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const match = window.location.pathname.match(/^\/blog\/([^/]+)/);
+      const slug = match ? decodeURIComponent(match[1]) : null;
+      setBlogSlug(slug);
+      if (slug) {
+        setActiveTab('blogs');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Scroll to top when navigating to a blog post route via popstate.
+  useEffect(() => {
+    if (blogSlug) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [blogSlug]);
+
+  const blogPost = blogSlug ? BLOG_POSTS.find((p) => p.slug === blogSlug) ?? null : null;
+
+  // If a blog route points to an unknown slug, reset to the home URL.
+  useEffect(() => {
+    if (blogSlug && !blogPost) {
+      window.history.replaceState({}, '', '/');
+      setBlogSlug(null);
+      setActiveTab('blogs');
+    }
+  }, [blogSlug, blogPost]);
 
   // Modals
   const [selectedSuite, setSelectedSuite] = useState<RoomSuite | null>(null);
@@ -42,7 +107,7 @@ export default function App() {
   const [bookings, setBookings] = useState<Reservation[]>(() => {
     try {
       const saved = localStorage.getItem('sentiero_reservations');
-      return saved ? JSON.parse(saved) : [];
+      return saved ? sanitizeReservations(JSON.parse(saved)) : [];
     } catch {
       return [];
     }
@@ -114,6 +179,18 @@ export default function App() {
 
   // Main content body
   const renderMainContent = () => {
+    if (blogPost) {
+      return (
+        <div className="py-2">
+          <BlogPostPage
+            post={blogPost}
+            onBack={closeBlogPost}
+            onBookNow={() => handleTabChange('suites')}
+          />
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'suites':
         return (
@@ -131,7 +208,7 @@ export default function App() {
                   </h2>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-[#091626]/80 bg-[#F2F2FF] border border-[#242E51]/10 px-3 py-1.5 rounded-full self-start sm:self-auto font-medium">
+                <div className="flex items-center gap-2 text-xs text-[#091626]/80 bg-sentiero-dots border border-[#242E51]/10 px-3 py-1.5 rounded-full self-start sm:self-auto font-medium">
                   <Calendar className="w-3.5 h-3.5 text-[#242E51]" />
                   <span>
                     {filterState.checkIn} to {filterState.checkOut}
@@ -242,14 +319,7 @@ export default function App() {
         );
 
       case 'airport':
-        return (
-          <AirportGuideSection
-            onBookShuttle={() => {
-              setActiveTab('suites');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        );
+        return <AirportGuideSection />;
 
       case 'about':
         return (
@@ -273,9 +343,9 @@ export default function App() {
         return (
           <BlogSection
             onBookNow={() => {
-              setActiveTab('suites');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              handleTabChange('suites');
             }}
+            onOpenPost={(post: BlogPost) => openBlogPost(post.slug)}
           />
         );
 
@@ -315,14 +385,14 @@ export default function App() {
   return (
     <div
       className={`min-h-screen font-sans text-[#091626] antialiased ${
-        isMobilePreview ? 'bg-[#1B233F] py-6 px-2 sm:px-4' : 'bg-[#F2F2FF]'
+        isMobilePreview ? 'bg-[#1B233F] py-6 px-2 sm:px-4' : 'bg-sentiero-dots'
       }`}
     >
       {/* If Mobile Preview Mode is active, wrap in phone frame */}
       <div
         className={
           isMobilePreview
-            ? 'max-w-sm mx-auto bg-[#F2F2FF] rounded-[44px] shadow-2xl border-8 border-[#091626] overflow-hidden relative min-h-[840px] flex flex-col'
+            ? 'max-w-sm mx-auto bg-sentiero-dots rounded-[44px] shadow-2xl border-8 border-[#091626] overflow-hidden relative min-h-[840px] flex flex-col'
             : 'w-full'
         }
       >
@@ -344,7 +414,7 @@ export default function App() {
         {/* Top App / Web Header (Primary Color #242E51) */}
         <HeaderNav
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           currency={currency}
           setCurrency={setCurrency}
           bookingsCount={bookings.length}
@@ -354,20 +424,20 @@ export default function App() {
         />
 
         {/* Main Content Area with Background #F2F2FF */}
-        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 pb-20 sm:pb-16 bg-[#F2F2FF]">
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 pb-20 sm:pb-16 bg-sentiero-dots">
           {renderMainContent()}
         </main>
 
         {/* Footer (Primary Color #242E51 with Accent #CD9A29) */}
         <Footer
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           onOpenDetail={handleOpenDetail}
         />
 
         {/* Mobile bottom navigation */}
         <BottomNav
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           bookingsCount={bookings.length}
           openBookingsModal={() => setIsBookingsModalOpen(true)}
         />

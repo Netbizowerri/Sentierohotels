@@ -43,7 +43,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-[#F2F2FF]">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-sentiero-dots">
           {bookings.length === 0 ? (
             <div className="text-center py-12 space-y-3 bg-white rounded-2xl border border-[#242E51]/10 p-6">
               <div className="w-12 h-12 rounded-full bg-[#242E51]/10 text-[#242E51] flex items-center justify-center mx-auto">
@@ -86,7 +86,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs bg-[#F2F2FF] p-2.5 rounded-xl border border-[#242E51]/10">
+                <div className="grid grid-cols-2 gap-2 text-xs bg-sentiero-dots p-2.5 rounded-xl border border-[#242E51]/10">
                   <div>
                     <span className="text-[10px] text-[#091626]/50 block">Check-in</span>
                     <span className="font-medium text-[#091626]">{item.checkInDate}</span>
@@ -95,16 +95,10 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                     <span className="text-[10px] text-[#091626]/50 block">Check-out</span>
                     <span className="font-medium text-[#091626]">{item.checkOutDate}</span>
                   </div>
-                  <div>
+                  <div className="col-span-2">
                     <span className="text-[10px] text-[#091626]/50 block">Amount Due at Desk</span>
                     <span className="font-bold text-[#242E51]">
                       {formatPrice(item.totalPriceNgn, item.totalPriceUsd, currency)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[#091626]/50 block">Airport Shuttle</span>
-                    <span className="font-medium text-[#091626]">
-                      {item.airportShuttleRequested ? 'Yes (Requested)' : 'Not needed'}
                     </span>
                   </div>
                 </div>

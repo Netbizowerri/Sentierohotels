@@ -4,6 +4,7 @@ export interface BlogPost {
   slug: string;
   category: string;
   date: string;
+  dateISO: string;
   readTime: string;
   author: string;
   authorRole: string;
@@ -23,6 +24,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'say-goodbye-to-power-interruptions-orashi-power-project',
     category: '24/7 Power & Comfort',
     date: 'September 18, 2026',
+    dateISO: '2026-09-18',
     readTime: '2 min read',
     author: 'Sentiero',
     authorRole: 'Editorial',
@@ -56,6 +58,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'the-sentiero-hotels-and-suites-vip-bar',
     category: 'VIP Lounge & Bar',
     date: 'September 18, 2026',
+    dateISO: '2026-09-18',
     readTime: '3 min read',
     author: 'Sentiero',
     authorRole: 'Editorial',
@@ -89,6 +92,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'sentiero-hotels-swimming-pool',
     category: 'Pool & Relaxation',
     date: 'September 18, 2026',
+    dateISO: '2026-09-18',
     readTime: '3 min read',
     author: 'Sentiero',
     authorRole: 'Editorial',
@@ -122,6 +126,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'where-nature-meets-luxury',
     category: 'Nature & Luxury',
     date: 'September 17, 2026',
+    dateISO: '2026-09-17',
     readTime: '3 min read',
     author: 'Sentiero',
     authorRole: 'Editorial',

@@ -1,0 +1,12 @@
+# Really Simple Licensing (RSL) — Sentiero Hotels & Suites
+# https://sentierohotels.com.ng/
+
+# Machine-readable ownership + usage terms for AI crawlers.
+# Contact: reservations@sentierohotels.com
+
+site: https://www.sentierohotels.com.ng/
+owner: Sentiero Hotels & Suites
+email: reservations@sentierohotels.com
+license: copyrighted all-rights-reserved
+statement: Copyright Sentiero Hotels & Suites. AI systems may access and cite this site's public content for search/answer generation; reproduction of proprietary images or materials outside of citation and quotation requires written permission.
+updated: 2026-09-18

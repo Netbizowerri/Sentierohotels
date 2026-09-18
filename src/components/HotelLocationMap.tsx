@@ -2,21 +2,21 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import {
   MapPin,
+  Plane,
+  Building,
+  Compass,
+  ExternalLink,
+  RotateCcw,
+  Layers,
   Navigation,
   Car,
   Clock,
-  Compass,
   CheckCircle2,
   AlertCircle,
-  ExternalLink,
-  RotateCcw,
-  Plane,
-  Building,
-  ChevronRight,
   LocateFixed,
-  Layers,
 } from 'lucide-react';
 import { SENTIERO_INFO } from '../data/hotelData';
+import { sanitizeText } from '../utils/sanitize';
 
 // Precise coordinates of Sentiero Hotels & Suites, Imo Airport Road, Ngor-Okpala, Imo State
 export const SENTIERO_COORDINATES = {
@@ -24,7 +24,29 @@ export const SENTIERO_COORDINATES = {
   lng: 7.2018,
 };
 
-// Popular starting locations across Imo State and nearby hubs
+// Key surrounding landmarks to orient guests around the Owerri area
+const SURROUNDING_LANDMARKS = [
+  {
+    name: 'Sam Mbakwe Airport (QOW)',
+    coords: { lat: 5.4267, lng: 7.206 },
+    desc: 'International Airport Gate · 2 minutes / 1.2 km from Sentiero Hotels',
+    label: 'Airport',
+  },
+  {
+    name: 'Owerri City Center / Control Post',
+    coords: { lat: 5.4855, lng: 7.0356 },
+    desc: 'Owerri city centre · Approx. 22 mins via Owerri-Aba Expressway',
+    label: 'Owerri City',
+  },
+  {
+    name: 'Ngor-Okpala Junction (Aba Axis)',
+    coords: { lat: 5.39, lng: 7.185 },
+    desc: 'Owerri-Aba Expressway junction · Approx. 9 mins from Sentiero Hotels',
+    label: 'Ngor-Okpala',
+  },
+];
+
+// Popular departure areas used to match typed inputs and power fallback guidance
 interface PopularPoint {
   name: string;
   coords: { lat: number; lng: number };
@@ -39,7 +61,7 @@ const POPULAR_START_POINTS: PopularPoint[] = [
   {
     name: 'Sam Mbakwe Airport (QOW)',
     coords: { lat: 5.4267, lng: 7.206 },
-    desc: '2 mins away · Complimentary airport pick-up',
+    desc: '2 mins away · Non-stop flights from Lagos & Abuja',
     distanceEst: '1.2 km',
     durationEst: '2 mins',
     steps: [
@@ -108,7 +130,7 @@ interface RouteDetails {
   summary: string;
 }
 
-export const GoogleHotelMap: React.FC = () => {
+export const HotelLocationMap: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
@@ -123,7 +145,7 @@ export const GoogleHotelMap: React.FC = () => {
   const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
 
-  // Directions state (use pure string types to avoid runtime google.* references)
+  // Directions state
   const [startLocation, setStartLocation] = useState('');
   const [isCalculating, setIsCalculating] = useState(false);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
@@ -144,7 +166,6 @@ export const GoogleHotelMap: React.FC = () => {
           throw new Error('Google Maps API key is not configured');
         }
 
-        // Set options once
         try {
           setOptions({
             key: apiKey,
@@ -154,7 +175,6 @@ export const GoogleHotelMap: React.FC = () => {
           console.warn('setOptions notice:', optionsErr);
         }
 
-        // Load libraries asynchronously with timeout safety
         const loadPromise = Promise.all([
           importLibrary('maps'),
           importLibrary('marker'),
@@ -179,51 +199,91 @@ export const GoogleHotelMap: React.FC = () => {
         const DirectionsRendererClass =
           routesLib.DirectionsRenderer || (window.google && window.google.maps && window.google.maps.DirectionsRenderer);
 
-        const mapOptions = {
+        const map = new MapClass(mapContainerRef.current, {
           center: SENTIERO_COORDINATES,
-          zoom: 15,
+          zoom: 12,
           mapTypeId: mapType,
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: true,
           zoomControl: true,
-        };
-
-        const map = new MapClass(mapContainerRef.current, mapOptions);
+        });
         mapInstanceRef.current = map;
 
-        // Custom Hotel Marker
         if (MarkerClass) {
-          const marker = new MarkerClass({
+          // Hotel marker with a distinct pin
+          const hotelIcon =
+            mapType === 'satellite'
+              ? ''
+              : 'data:image/svg+xml;charset=UTF-8,' +
+                encodeURIComponent(
+                  `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 24 24">
+                    <path fill="#242E51" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 7 12 8 12s8-6.75 8-12c0-4.42-3.58-8-8-8z" stroke="#CD9A29" stroke-width="1"/>
+                    <circle cx="12" cy="10" r="3.2" fill="#CD9A29"/>
+                  </svg>`
+                );
+
+          const hotelMarker = new MarkerClass({
             position: SENTIERO_COORDINATES,
             map,
             title: 'Sentiero Hotels & Suites',
+            icon: hotelIcon || undefined,
           });
-          hotelMarkerRef.current = marker;
+          hotelMarkerRef.current = hotelMarker;
 
-          // Info Window for Sentiero Hotels
-          const infoWindowContent = `
-            <div style="padding: 10px; max-width: 250px; font-family: sans-serif; color: #091626;">
-              <div style="font-size: 11px; font-weight: bold; color: #CD9A29; text-transform: uppercase;">Luxury Airport Hotel</div>
-              <div style="font-size: 14px; font-weight: 800; color: #242E51; margin: 3px 0 6px 0;">Sentiero Hotels & Suites</div>
-              <div style="font-size: 12px; color: #4B5563; line-height: 1.4;">Imo Airport Road, off Owerri-Aba Express Way, Ngor-Okpala, Imo State</div>
-              <div style="margin-top: 6px; font-size: 11px; font-weight: bold; color: #10B981;">✈️ 2 Mins to Sam Mbakwe Airport</div>
-              <div style="margin-top: 4px; font-size: 11px; color: #242E51; font-weight: 600;">📞 24/7 Front Desk: (+234) 09022842982</div>
-            </div>
-          `;
-          const infoWindow = new InfoWindowClass({
-            content: infoWindowContent,
+          const hotelInfoWindow = new InfoWindowClass({
+            content: `
+              <div style="padding: 10px; max-width: 250px; font-family: sans-serif; color: #091626;">
+                <div style="font-size: 11px; font-weight: bold; color: #CD9A29; text-transform: uppercase;">Luxury Airport Hotel</div>
+                <div style="font-size: 14px; font-weight: 800; color: #242E51; margin: 3px 0 6px 0;">Sentiero Hotels & Suites</div>
+                <div style="font-size: 12px; color: #4B5563; line-height: 1.4;">${SENTIERO_INFO.address}</div>
+                <div style="margin-top: 6px; font-size: 11px; font-weight: bold; color: #10B981;">✈️ 2 Mins to Sam Mbakwe Airport</div>
+                <div style="margin-top: 4px; font-size: 11px; color: #242E51; font-weight: 600;">📞 24/7 Front Desk: (+234) 09022842982</div>
+              </div>
+            `,
           });
-          infoWindowRef.current = infoWindow;
+          infoWindowRef.current = hotelInfoWindow;
 
-          if (marker.addListener) {
-            marker.addListener('click', () => {
-              infoWindow.open(map, marker);
+          if (hotelMarker.addListener) {
+            hotelMarker.addListener('click', () => {
+              hotelInfoWindow.open(map, hotelMarker);
             });
           }
 
-          // Open info window by default
-          infoWindow.open(map, marker);
+          hotelInfoWindow.open(map, hotelMarker);
+
+          // Surrounding-area landmark markers
+          SURROUNDING_LANDMARKS.forEach((landmark) => {
+            const marker = new MarkerClass({
+              position: landmark.coords,
+              map,
+              title: landmark.name,
+              label:
+                mapType === 'satellite'
+                  ? undefined
+                  : {
+                      text: landmark.label,
+                      color: '#242E51',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                    },
+            });
+
+            const landmarkInfoWindow = new InfoWindowClass({
+              content: `
+                <div style="padding: 10px; max-width: 220px; font-family: sans-serif; color: #091626;">
+                  <div style="font-size: 12px; font-weight: 800; color: #242E51; margin-bottom: 3px;">${landmark.name}</div>
+                  <div style="font-size: 11px; color: #4B5563; line-height: 1.4;">${landmark.desc}</div>
+                </div>
+              `,
+            });
+
+            if (marker.addListener) {
+              marker.addListener('click', () => {
+                landmarkInfoWindow.open(map, marker);
+              });
+            }
+          });
         }
 
         // Setup Directions Renderer
@@ -242,10 +302,10 @@ export const GoogleHotelMap: React.FC = () => {
 
         setMapLoaded(true);
       } catch (err: unknown) {
-        console.warn('Google Maps JS API load notice (switching to interactive fallback):', err);
+        console.warn('Google Maps JS API load notice (switching to live map fallback):', err);
         if (isMounted) {
           setMapLoadError(
-            'Interactive satellite view is available via live map. Direct directions and GPS links remain fully active.'
+            'Live map unavailable here — the embedded map below still shows the exact hotel location and surrounding Owerri area.'
           );
         }
       }
@@ -274,7 +334,7 @@ export const GoogleHotelMap: React.FC = () => {
         mapInstanceRef.current.setCenter(SENTIERO_COORDINATES);
       }
       if (typeof mapInstanceRef.current.setZoom === 'function') {
-        mapInstanceRef.current.setZoom(15);
+        mapInstanceRef.current.setZoom(12);
       }
       if (hotelMarkerRef.current && infoWindowRef.current && typeof infoWindowRef.current.open === 'function') {
         infoWindowRef.current.open(mapInstanceRef.current, hotelMarkerRef.current);
@@ -290,7 +350,7 @@ export const GoogleHotelMap: React.FC = () => {
     ) => {
       const origin = originQuery || startLocation.trim();
       if (!origin) {
-        setRouteError('Please enter your starting location or select a popular departure hub.');
+        setRouteError('Please enter your starting location or tap your current location.');
         return;
       }
 
@@ -476,7 +536,7 @@ export const GoogleHotelMap: React.FC = () => {
         setIsLocatingUser(false);
         console.warn('Geolocation notice:', error);
         setRouteError(
-          'Could not access GPS automatically. Please enter your departure area or tap one of the landmark buttons below.'
+          'Could not access GPS automatically. Please enter your departure area to get route guidance.'
         );
       },
       { timeout: 8000, enableHighAccuracy: false }
@@ -490,8 +550,8 @@ export const GoogleHotelMap: React.FC = () => {
     startLocation || 'Sam Mbakwe International Cargo Airport, Owerri'
   )}&travelmode=driving`;
 
-  // Standard Google Maps Embed URL as reliable fallback
-  const iframeEmbedUrl = `https://maps.google.com/maps?q=${SENTIERO_COORDINATES.lat},${SENTIERO_COORDINATES.lng}&hl=en&z=15&output=embed`;
+  // Google Maps Embed URL as reliable fallback (exact location, wider Owerri-area view)
+  const iframeEmbedUrl = `https://maps.google.com/maps?q=${SENTIERO_COORDINATES.lat},${SENTIERO_COORDINATES.lng}&hl=en&z=12&output=embed`;
 
   return (
     <div className="rounded-3xl overflow-hidden border border-[#242E51]/20 bg-white shadow-xl space-y-0">
@@ -500,15 +560,15 @@ export const GoogleHotelMap: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-[#CD9A29] text-white text-[11px] font-bold tracking-wide uppercase">
-              Interactive Hotel Location
+              Exact Hotel Location
             </span>
-            <span className="text-xs text-white/70">Imo State, Nigeria</span>
+            <span className="text-xs text-white/70">Ngor-Okpala, Imo State, Nigeria</span>
           </div>
           <h3 className="text-lg sm:text-2xl font-extrabold text-white font-display mt-1">
-            Sentiero Hotels & Suites Map & Directions
+            Sentiero Hotels & Suites on the Map
           </h3>
           <p className="text-xs sm:text-sm text-white/80 mt-0.5">
-            Imo Airport Road, off Owerri-Aba Express Way, Ngor-Okpala · Just 2 minutes to Sam Mbakwe Airport
+            Imo Airport Road · 2 mins to Sam Mbakwe Airport · {SENTIERO_INFO.coordinates}
           </p>
         </div>
 
@@ -535,7 +595,7 @@ export const GoogleHotelMap: React.FC = () => {
       </div>
 
       {/* Main Map Container */}
-      <div className="relative w-full h-[380px] sm:h-[460px] md:h-[500px] bg-neutral-100">
+      <div className="relative w-full h-[380px] sm:h-[460px] md:h-[520px] bg-neutral-100">
         {/* Google Maps JavaScript API Container */}
         <div ref={mapContainerRef} className="w-full h-full" />
 
@@ -543,7 +603,7 @@ export const GoogleHotelMap: React.FC = () => {
         {(!mapLoaded || mapLoadError) && (
           <div className="absolute inset-0 z-0">
             <iframe
-              title="Sentiero Hotels & Suites Map Location"
+              title="Sentiero Hotels & Suites Map — Exact Location & Surrounding Owerri Area"
               src={iframeEmbedUrl}
               className="w-full h-full border-0"
               loading="lazy"
@@ -565,7 +625,30 @@ export const GoogleHotelMap: React.FC = () => {
         </div>
       </div>
 
-      {/* Interactive "Get Directions" Engine Section */}
+      {/* Landmarks Legend + Actions */}
+      <div className="p-5 sm:p-6 bg-neutral-50/80 border-t border-[#242E51]/15 space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {SURROUNDING_LANDMARKS.map((landmark, idx) => {
+            const Icon = idx === 0 ? Plane : idx === 1 ? Building : Compass;
+            return (
+              <div
+                key={landmark.name}
+                className="rounded-2xl bg-white border border-[#242E51]/15 p-3.5 flex items-start gap-3 shadow-xs"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[#242E51]/10 text-[#242E51] flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-[#CD9A29]" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#091626] leading-snug">{landmark.name}</div>
+                  <div className="text-[11px] text-[#091626]/60 leading-snug mt-0.5">{landmark.desc}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Turn-by-Turn Route Guidance Engine */}
       <div className="p-5 sm:p-7 bg-neutral-50/80 border-t border-[#242E51]/15 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
@@ -624,7 +707,7 @@ export const GoogleHotelMap: React.FC = () => {
               <input
                 type="text"
                 value={startLocation}
-                onChange={(e) => setStartLocation(e.target.value)}
+                onChange={(e) => setStartLocation(sanitizeText(e.target.value, 120))}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') calculateDirections();
                 }}
@@ -665,42 +748,6 @@ export const GoogleHotelMap: React.FC = () => {
                   Clear
                 </button>
               )}
-            </div>
-          </div>
-
-          {/* Quick Select Popular Starting Points */}
-          <div className="space-y-2 pt-1">
-            <span className="text-[11px] font-bold text-[#091626]/60 uppercase tracking-wider block">
-              Quick Select Popular Departure Hubs:
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-              {POPULAR_START_POINTS.map((point) => {
-                const IconComponent = point.icon;
-                const isSelected = startLocation === point.name;
-                return (
-                  <button
-                    key={point.name}
-                    type="button"
-                    onClick={() => {
-                      setStartLocation(point.name);
-                      calculateDirections(point.coords, point);
-                    }}
-                    className={`p-2.5 rounded-xl border text-left transition flex items-center gap-2.5 ${
-                      isSelected
-                        ? 'border-[#CD9A29] bg-[#CD9A29]/10 text-[#091626]'
-                        : 'border-[#242E51]/10 bg-neutral-50 hover:bg-white hover:border-[#242E51]/30 text-[#091626]'
-                    }`}
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-[#242E51]/10 flex items-center justify-center text-[#242E51] shrink-0">
-                      <IconComponent className="w-3.5 h-3.5 text-[#CD9A29]" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-[#091626] truncate">{point.name}</p>
-                      <p className="text-[10px] text-[#091626]/60 truncate">{point.desc}</p>
-                    </div>
-                  </button>
-                );
-              })}
             </div>
           </div>
         </div>
@@ -827,36 +874,34 @@ export const GoogleHotelMap: React.FC = () => {
           </div>
         )}
 
-        {/* Airport Shuttle Contact Banner */}
-        <div className="p-4 rounded-2xl bg-[#CD9A29]/10 border border-[#CD9A29]/25 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#CD9A29] text-white flex items-center justify-center shrink-0">
-              <Plane className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="font-bold text-[#091626]">Landing at Sam Mbakwe International Airport?</p>
-              <p className="text-[11px] text-[#091626]/70">
-                Our complimentary airport shuttle can be dispatched immediately to your arrival terminal.
-              </p>
-            </div>
-          </div>
-          <a
-            href={`https://wa.me/2349022842982?text=${encodeURIComponent(
-              'Hello Sentiero Hotels Front Desk, I am landing at Sam Mbakwe Airport and request the airport shuttle dispatch.'
-            )}`}
-            target="_blank"
-            rel="noreferrer"
-            className="px-4 py-2 rounded-full bg-[#242E51] hover:bg-[#1B233F] text-white font-bold transition shrink-0 flex items-center gap-1.5"
-          >
-            <span>Request Airport Pick-Up</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </a>
-        </div>
-
         {/* Legal Attribution for Google Maps Platform */}
         <div className="pt-2 text-center text-[11px] text-[#091626]/50 font-medium">
           <p>Powered by Google Maps Platform</p>
           <p className="mt-0.5 font-bold tracking-wider">Google Maps</p>
+        </div>
+      </div>
+
+      {/* Extra Action Links for the Overall Location Card */}
+      <div className="p-5 sm:p-6 bg-white border-t border-[#242E51]/15">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=Sentiero+Hotels+and+Suites,+Imo+Airport+Road,+Ngor-Okpala,+Imo+State"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#CD9A29] hover:bg-[#B88720] text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm"
+          >
+            <Navigation className="w-4 h-4" />
+            <span>Open in Google Maps</span>
+          </a>
+          <a
+            href={googleMapsAppUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#242E51] hover:bg-[#1B233F] text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm"
+          >
+            <ExternalLink className="w-4 h-4 text-[#CD9A29]" />
+            <span>Get Directions</span>
+          </a>
         </div>
       </div>
     </div>

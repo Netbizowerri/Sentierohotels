@@ -32,7 +32,7 @@ const HOTEL_FEATURES: FeatureItem[] = [
     category: 'airport',
     icon: Plane,
     title: '2-Minute Airport Transit',
-    tagline: 'Curbside VIP Shuttle Fleet',
+    tagline: 'Curbside Arrival Within 2 Minutes',
     description:
       'Direct 1.2km transit to Sam Mbakwe International Cargo Airport (QOW). Never worry about traffic jams or missing early morning flights.',
     highlight: '2 Min Drive to Runway',
@@ -217,7 +217,7 @@ export const HotelFeaturesDark: React.FC<HotelFeaturesDarkProps> = ({
                 Flying into Sam Mbakwe Airport soon?
               </h4>
               <p className="text-[11px] text-white/70">
-                Book in advance to have an air-conditioned shuttle waiting for you curbside.
+                Check daily non-stop flights from QOW to Lagos & Abuja in our airport guide.
               </p>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { X, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import { SearchFilterState } from '../types/hotel';
 import { getTodayDateString, getTomorrowDateString } from '../utils/formatters';
+import { sanitizeDate } from '../utils/sanitize';
 
 interface SearchFilterDrawerProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export const SearchFilterDrawer: React.FC<SearchFilterDrawerProps> = ({
         </div>
 
         {/* Filter Inputs */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1 bg-[#F2F2FF]">
+        <div className="p-5 overflow-y-auto space-y-4 flex-1 bg-sentiero-dots">
           {/* Destination */}
           <div>
             <label className="block text-xs font-semibold text-[#091626] mb-1">
@@ -63,7 +64,7 @@ export const SearchFilterDrawer: React.FC<SearchFilterDrawerProps> = ({
                 min={getTodayDateString()}
                 value={filterState.checkIn}
                 onChange={(e) =>
-                  setFilterState((prev) => ({ ...prev, checkIn: e.target.value }))
+                  setFilterState((prev) => ({ ...prev, checkIn: sanitizeDate(e.target.value) || getTodayDateString() }))
                 }
                 className="w-full text-xs py-2 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
               />
@@ -77,7 +78,7 @@ export const SearchFilterDrawer: React.FC<SearchFilterDrawerProps> = ({
                 min={filterState.checkIn || getTodayDateString()}
                 value={filterState.checkOut}
                 onChange={(e) =>
-                  setFilterState((prev) => ({ ...prev, checkOut: e.target.value }))
+                  setFilterState((prev) => ({ ...prev, checkOut: sanitizeDate(e.target.value) || getTomorrowDateString() }))
                 }
                 className="w-full text-xs py-2 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
               />
@@ -176,7 +177,7 @@ export const SearchFilterDrawer: React.FC<SearchFilterDrawerProps> = ({
                 sortBy: 'recommended',
               });
             }}
-            className="px-4 py-2.5 rounded-full border border-[#242E51]/20 text-[#091626] text-xs font-semibold hover:bg-[#F2F2FF] transition"
+            className="px-4 py-2.5 rounded-full border border-[#242E51]/20 text-[#091626] text-xs font-semibold hover:bg-sentiero-dots transition"
           >
             Reset
           </button>

@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Calendar,
   Clock,
   User,
   Tag,
@@ -8,24 +7,20 @@ import {
   Search,
   BookOpen,
   Sparkles,
-  X,
-  Share2,
-  Check,
   Images,
-  Maximize2,
 } from 'lucide-react';
 import { BLOG_POSTS, BlogPost } from '../data/blogData';
+import { sanitizeText } from '../utils/sanitize';
+import { blogPostUrl } from '../utils/blogSeo';
 
 interface BlogSectionProps {
   onBookNow: () => void;
+  onOpenPost: (post: BlogPost) => void;
 }
 
-export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
+export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow, onOpenPost }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [readingPost, setReadingPost] = useState<BlogPost | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -50,22 +45,6 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
   const featuredPost = useMemo(() => {
     return BLOG_POSTS.find((p) => p.featured) || BLOG_POSTS[0];
   }, []);
-
-  const handleShare = (post: BlogPost) => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: post.title,
-          text: post.excerpt,
-          url: window.location.href,
-        })
-        .catch(() => {});
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }
-  };
 
   return (
     <div className="py-6 sm:py-10 space-y-8 animate-in fade-in duration-300">
@@ -113,7 +92,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
             type="text"
             placeholder="Search articles & guides..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(sanitizeText(e.target.value, 80))}
             className="w-full pl-9 pr-4 py-2 text-xs rounded-full border border-[#242E51]/20 bg-white text-[#091626] focus:outline-none focus:ring-2 focus:ring-[#CD9A29]"
           />
           {searchQuery && (
@@ -129,9 +108,13 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
 
       {/* Featured Story (Shown if viewing 'all' and no active search) */}
       {selectedCategory === 'all' && !searchQuery && featuredPost && (
-        <div
-          onClick={() => setReadingPost(featuredPost)}
-          className="group cursor-pointer rounded-3xl overflow-hidden bg-white border border-[#242E51]/15 shadow-md hover:shadow-xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
+        <a
+          href={blogPostUrl(featuredPost.slug)}
+          onClick={(e) => {
+            e.preventDefault();
+            onOpenPost(featuredPost);
+          }}
+          className="block group cursor-pointer rounded-3xl overflow-hidden bg-white border border-[#242E51]/15 shadow-md hover:shadow-xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12"
         >
           <div className="lg:col-span-7 h-64 sm:h-80 lg:h-auto relative overflow-hidden bg-neutral-100">
             <img
@@ -186,7 +169,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
               </span>
             </div>
           </div>
-        </div>
+        </a>
       )}
 
       {/* Stories Grid */}
@@ -220,9 +203,13 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPosts.map((post) => (
-              <article
+              <a
                 key={post.id}
-                onClick={() => setReadingPost(post)}
+                href={blogPostUrl(post.slug)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenPost(post);
+                }}
                 className="group cursor-pointer rounded-3xl overflow-hidden bg-white border border-[#242E51]/15 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col"
               >
                 <div className="h-48 relative overflow-hidden bg-neutral-100">
@@ -275,7 +262,7 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
                     </span>
                   </div>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         )}
@@ -298,231 +285,6 @@ export const BlogSection: React.FC<BlogSectionProps> = ({ onBookNow }) => {
           Book Your Suite Now
         </button>
       </div>
-
-      {/* Article Reader Modal */}
-      {readingPost && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#242E51]/20 my-4 max-h-[92vh] flex flex-col">
-            {/* Header */}
-            <div className="p-4 sm:p-5 bg-[#242E51] text-white flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#CD9A29] text-white font-bold text-[11px]">
-                  {readingPost.category}
-                </span>
-                <span className="text-white/70">{readingPost.readTime}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleShare(readingPost)}
-                  className="w-8 h-8 rounded-full bg-[#1B233F] text-white flex items-center justify-center hover:bg-[#303D6A] transition text-xs"
-                  title="Share article"
-                >
-                  {copiedLink ? <Check className="w-3.5 h-3.5 text-[#CD9A29]" /> : <Share2 className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  onClick={() => setReadingPost(null)}
-                  className="w-8 h-8 rounded-full bg-[#1B233F] text-white flex items-center justify-center hover:bg-[#303D6A] transition"
-                  title="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Scrollable Body */}
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#091626] font-display leading-tight">
-                  {readingPost.title}
-                </h2>
-                <div className="flex items-center gap-3 text-xs text-[#091626]/60 pt-1">
-                  <span className="flex items-center gap-1 font-semibold text-[#091626]">
-                    <User className="w-3.5 h-3.5 text-[#CD9A29]" />
-                    Written by {readingPost.author}
-                  </span>
-                  <span>·</span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-[#CD9A29]" />
-                    {readingPost.date}
-                  </span>
-                </div>
-              </div>
-
-              {/* Cover photo */}
-              <div
-                onClick={() => setEnlargedImage(readingPost.coverImage)}
-                className="group/cover relative rounded-2xl overflow-hidden h-64 sm:h-80 bg-neutral-100 shadow-inner cursor-pointer"
-              >
-                <img
-                  src={readingPost.coverImage}
-                  alt={readingPost.title}
-                  className="w-full h-full object-cover group-hover/cover:scale-102 transition duration-500"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/cover:opacity-100 transition flex items-center justify-center">
-                  <span className="px-3 py-1.5 rounded-full bg-white/90 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-md">
-                    <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
-                    <span>View Cover Image</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Article Paragraphs with optional inline gallery */}
-              <div className="space-y-4 text-sm sm:text-base text-[#091626]/85 leading-relaxed font-sans">
-                {readingPost.content.map((para, i) => (
-                  <React.Fragment key={i}>
-                    <p className="leading-relaxed">{para}</p>
-                    {readingPost.inlineGalleryIndex === i &&
-                      readingPost.galleryImages &&
-                      readingPost.galleryImages.length > 0 && (
-                        <div className="py-4 my-2 border-y border-neutral-100 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-sm font-bold text-[#091626]">
-                              <Images className="w-4 h-4 text-[#CD9A29]" />
-                              <span>Property & Experience Photo Highlights</span>
-                            </div>
-                            <span className="text-xs text-[#091626]/50">
-                              {readingPost.galleryImages.length} photos · Click to enlarge
-                            </span>
-                          </div>
-
-                          <div
-                            className={`grid grid-cols-1 sm:grid-cols-2 ${
-                              readingPost.galleryImages.length === 3
-                                ? 'md:grid-cols-3'
-                                : 'md:grid-cols-2 lg:grid-cols-4'
-                            } gap-3`}
-                          >
-                            {readingPost.galleryImages.map((imgUrl, idx) => (
-                              <div
-                                key={idx}
-                                onClick={() => setEnlargedImage(imgUrl)}
-                                className="group/img relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-100 border border-[#242E51]/10 cursor-pointer shadow-xs hover:shadow-md transition"
-                              >
-                                <img
-                                  src={imgUrl}
-                                  alt={`${readingPost.title} photo ${idx + 1}`}
-                                  className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
-                                  loading="lazy"
-                                  referrerPolicy="no-referrer"
-                                />
-                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                                  <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
-                                    <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
-                                    <span>Enlarge Photo</span>
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* Photo Gallery - Other Images (if not rendered inline) */}
-              {readingPost.inlineGalleryIndex === undefined &&
-                readingPost.galleryImages &&
-                readingPost.galleryImages.length > 0 && (
-                  <div className="pt-4 border-t border-neutral-100 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm font-bold text-[#091626]">
-                        <Images className="w-4 h-4 text-[#CD9A29]" />
-                        <span>Property Photo Highlights</span>
-                      </div>
-                      <span className="text-xs text-[#091626]/50">
-                        {readingPost.galleryImages.length} additional photos · Click to enlarge
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {readingPost.galleryImages.map((imgUrl, idx) => (
-                        <div
-                          key={idx}
-                          onClick={() => setEnlargedImage(imgUrl)}
-                          className="group/img relative rounded-2xl overflow-hidden aspect-[4/3] bg-neutral-100 border border-[#242E51]/10 cursor-pointer shadow-xs hover:shadow-md transition"
-                        >
-                          <img
-                            src={imgUrl}
-                            alt={`${readingPost.title} photo ${idx + 1}`}
-                            className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                            referrerPolicy="no-referrer"
-                          />
-                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="px-3 py-1.5 rounded-full bg-white/95 text-[#091626] text-xs font-bold flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
-                              <Maximize2 className="w-3.5 h-3.5 text-[#CD9A29]" />
-                              <span>Enlarge Photo</span>
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              {/* Tags */}
-              <div className="pt-4 border-t border-neutral-100 flex flex-wrap gap-2">
-                {readingPost.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#F2F2FF] text-[#242E51] text-xs font-medium border border-[#242E51]/10"
-                  >
-                    <Tag className="w-3 h-3 text-[#CD9A29]" />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* In-article CTA */}
-              <div className="p-5 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h4 className="font-bold text-sm text-[#091626]">
-                    Experience this hospitality at Sentiero
-                  </h4>
-                  <p className="text-xs text-[#091626]/60 mt-0.5">
-                    Just 2 minutes from Sam Mbakwe Cargo Airport with 24/7 power.
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setReadingPost(null);
-                    onBookNow();
-                  }}
-                  className="px-5 py-2.5 rounded-full bg-[#242E51] hover:bg-[#1B233F] text-white text-xs font-bold shadow-md transition whitespace-nowrap"
-                >
-                  Book Your Suite
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Enlarged Image Lightbox */}
-      {enlargedImage && (
-        <div
-          className="fixed inset-0 z-60 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={() => setEnlargedImage(null)}
-        >
-          <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
-            <button
-              onClick={() => setEnlargedImage(null)}
-              className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition"
-              title="Close image"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <img
-              src={enlargedImage}
-              alt="Enlarged view"
-              className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl border border-white/20"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

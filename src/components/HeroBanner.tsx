@@ -166,7 +166,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             <span className="text-[10px] sm:text-[11px] font-bold text-[#242E51] bg-[#242E51]/10 px-2 py-0.5 sm:px-2.5 rounded-full">
               2 Mins to Airport
             </span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F2F2FF] text-[#242E51] flex items-center justify-center group-hover:bg-[#CD9A29] group-hover:text-white transition">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sentiero-dots text-[#242E51] flex items-center justify-center group-hover:bg-[#CD9A29] group-hover:text-white transition">
               <SlidersHorizontal className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -175,7 +175,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         {/* Bell notification button */}
         <button
           onClick={onOpenNotifications}
-          className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-2xl border border-[#242E51]/15 bg-white flex items-center justify-center hover:border-[#CD9A29] hover:bg-[#F2F2FF] transition shadow-xs shrink-0"
+          className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-2xl border border-[#242E51]/15 bg-white flex items-center justify-center hover:border-[#CD9A29] hover:bg-sentiero-dots transition shadow-xs shrink-0"
           title="Hotel Notifications"
         >
           <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[#242E51]" />

@@ -221,21 +221,21 @@ export const SuiteDetailModal: React.FC<SuiteDetailModalProps> = ({
 
           {/* Key Specs Pills */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div className="p-2.5 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/10 text-center">
+            <div className="p-2.5 rounded-2xl bg-sentiero-dots border border-[#242E51]/10 text-center">
               <span className="block text-[10px] uppercase font-bold text-[#091626]/50">Bed Type</span>
               <span className="font-bold text-xs text-[#091626]">{suite.bedType}</span>
             </div>
-            <div className="p-2.5 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/10 text-center">
+            <div className="p-2.5 rounded-2xl bg-sentiero-dots border border-[#242E51]/10 text-center">
               <span className="block text-[10px] uppercase font-bold text-[#091626]/50">Max Guests</span>
               <span className="font-bold text-xs text-[#091626]">
                 {suite.capacity.adults} Adults, {suite.capacity.children} Child
               </span>
             </div>
-            <div className="p-2.5 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/10 text-center">
+            <div className="p-2.5 rounded-2xl bg-sentiero-dots border border-[#242E51]/10 text-center">
               <span className="block text-[10px] uppercase font-bold text-[#091626]/50">Power Supply</span>
               <span className="font-bold text-xs text-[#CD9A29]">24/7 Solar + Gen</span>
             </div>
-            <div className="p-2.5 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/10 text-center">
+            <div className="p-2.5 rounded-2xl bg-sentiero-dots border border-[#242E51]/10 text-center">
               <span className="block text-[10px] uppercase font-bold text-[#091626]/50">Security</span>
               <span className="font-bold text-xs text-[#242E51]">24/7 Security</span>
             </div>
@@ -250,7 +250,7 @@ export const SuiteDetailModal: React.FC<SuiteDetailModalProps> = ({
               {suite.amenities.map((amenity, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#F2F2FF] border border-[#242E51]/10 hover:border-[#CD9A29] transition text-center"
+                  className="flex flex-col items-center justify-center p-3 rounded-2xl bg-sentiero-dots border border-[#242E51]/10 hover:border-[#CD9A29] transition text-center"
                 >
                   <div className="w-8 h-8 rounded-xl bg-white shadow-xs flex items-center justify-center mb-1.5">
                     {renderAmenityIcon(amenity.icon)}
@@ -264,7 +264,7 @@ export const SuiteDetailModal: React.FC<SuiteDetailModalProps> = ({
           </div>
 
           {/* Suite Description */}
-          <div className="bg-[#F2F2FF] rounded-2xl p-4 border border-[#242E51]/10 text-xs sm:text-sm text-[#091626]/80 leading-relaxed">
+          <div className="bg-sentiero-dots rounded-2xl p-4 border border-[#242E51]/10 text-xs sm:text-sm text-[#091626]/80 leading-relaxed">
             <h4 className="font-bold text-[#091626] mb-1.5 flex items-center gap-1.5">
               <Info className="w-4 h-4 text-[#CD9A29]" />
               About This Suite

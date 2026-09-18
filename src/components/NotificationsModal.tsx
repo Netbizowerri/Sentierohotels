@@ -20,8 +20,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, 
     },
     {
       id: 2,
-      title: 'Sam Mbakwe Airport Express Shuttle',
-      desc: 'Shuttles operate continuously every 15 minutes to all domestic terminals.',
+      title: 'Daily Non-Stop Flights to Lagos & Abuja',
+      desc: 'Check QOW departure schedules in the Airport Guide — just 2 minutes from the terminal.',
       icon: Plane,
       time: '10m ago',
       color: 'text-[#242E51] bg-[#242E51]/10',
@@ -60,7 +60,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, 
           </button>
         </div>
 
-        <div className="p-4 space-y-3 max-h-96 overflow-y-auto bg-[#F2F2FF]">
+        <div className="p-4 space-y-3 max-h-96 overflow-y-auto bg-sentiero-dots">
           {notifications.map((n) => {
             const Icon = n.icon;
             return (

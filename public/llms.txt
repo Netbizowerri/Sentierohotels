@@ -1,0 +1,63 @@
+# Sentiero Hotels & Suites
+
+> Sentiero Hotels & Suites is a luxury airport hotel on Imo State Airport Road — just 2 minutes (1.2 km) from Sam Mbakwe International Airport (QOW), Owerri, Imo State, Nigeria. It offers 24/7 solar power, fortified CCTV security, a swimming pool with poolside bar, restaurant serving African and continental dishes, an exclusive gym, fully stocked bars, and free high-speed Wi-Fi in every suite. Book online with zero upfront payment; pay at the front desk.
+
+## Key Facts
+
+- **Name**: Sentiero Hotels & Suites
+- **Type**: Luxury airport hotel and suites
+- **Location**: Imo State Airport Road (2 minutes from the terminal), Ngor-Okpala, Owerri, Imo State, Nigeria
+- **Nearest Airport**: Sam Mbakwe International Airport (QOW) — 1.2 km, ~2-minute drive
+- **Coordinates**: 5.4345° N, 7.2018° E
+- **Phone**: (+234) 09022842982, (+234) 09060 121 582
+- **WhatsApp**: (+234) 09022842982
+- **Email**: reservations@sentierohotels.com
+- **Website**: https://www.sentierohotels.com.ng/
+- **Check-in**: From 2:00 PM
+- **Check-out**: Before 12:00 PM
+- **Payment**: Pay upon arrival at the front desk (card or bank transfer); online booking requires no upfront payment
+- **Area served**: Imo State, Owerri, Ngor-Okpala, Umuowa, Sam Mbakwe Airport (QOW), Nekede, Ihiagwa, Avu
+
+## Rooms & Suites
+
+- **Classic Suite** — ₦24,500/night · king bed · 1 adult + 1 child · 28 m² · the affordable single-traveler stay near Imo Airport
+- **Deluxe Suite** — ₦29,900/night · king bed · 2 adults + 1 child · 38 m² · Sentiero's most popular suite for couples
+- **Royal Suite** — ₦26,900/night · king bed · 2 adults + 2 children · 52 m² · plush lounge, mini fridge, gourmet breakfast
+- **Business Executive Suite** — ₦35,000/night · king bed · 3 adults + 2 children · 68 m² · separate living/sitting room, concierge
+
+## Amenities
+
+- 24/7 uninterrupted power (Orashi Power Project + solar + dual standby generators)
+- Fortified security with high-definition CCTV and 24/7 patrols
+- Outdoor swimming pool with poolside bar
+- Restaurant serving Nigerian delicacies (Afang, Egusi, pepper soup) and continental menus
+- Exclusive gym (cardio & strength)
+- Fully stocked bar & VIP lounge
+- Free high-speed Wi-Fi in all suites
+- Free parking
+- Smart TV, air conditioning, hot rainfall showers, work desks
+- Complimentary breakfast (Deluxe, Royal, Business Executive)
+
+## Scheduled Flights from QOW
+
+Sam Mbakwe International Airport (QOW) operates daily non-stop flights to Lagos (LOS) and Abuja (ABV) on Air Peace and United Nigeria Airlines.
+
+## Frequently Asked Questions
+
+- **How far is Sentiero Hotels from Sam Mbakwe Airport?** Approximately 1.2 km — a 2-minute drive from the terminal. Sentiero is the nearest hotel to Imo Airport.
+- **Is power guaranteed?** Yes — Sentiero is connected to the Orashi Power Project with 24/7 uninterrupted electricity and solar backup.
+- **Is there a swimming pool?** Yes — an outdoor swimming pool with poolside bar and refreshments.
+- **Which flights operate from QOW?** Daily non-stop flights to Lagos (LOS) and Abuja (ABV) on Air Peace and United Nigeria Airlines.
+- **Can I pay at check-in?** Yes — book online now with zero upfront payment and settle at the front desk.
+
+## Pages
+
+- [Home & Room Booking](https://www.sentierohotels.com.ng/): Browse Classic, Deluxe, Royal, and Business Executive suites with prices, book online, view amenities, airport guide, testimonials, and contact details.
+- [Airport Guide](https://www.sentierohotels.com.ng/): Flight schedules from Sam Mbakwe Airport (QOW) to Lagos and Abuja.
+- [Contact](https://www.sentierohotels.com.ng/): Directions, map, phone, WhatsApp, and inquiry form.
+- [Blog](https://www.sentierohotels.com.ng/): Articles about the Orashi Power Project, VIP Bar, swimming pool, and nature & luxury.
+
+## Optional
+
+- [Booking Formspree Connect](https://formspree.io/f/xnpnnadb): Backend email relay for reservations.
+- [Google Maps Directions](https://www.google.com/maps/search/?api=1&query=Sentiero+Hotels+and+Suites,+Imo+Airport+Road,+Ngor-Okpala,+Imo+State): Driving directions to Sentiero Hotels & Suites.

@@ -5,10 +5,10 @@ export const SENTIERO_INFO = {
   tagline: 'Luxury & Serenity 2 Minutes from Sam Mbakwe Airport',
   headline: 'ENJOY THE SENTIERO HOSPITALITY',
   description:
-    "At Sentiero Hotels and Suites, we'll give you that luxurious and serene environment that you need to truly relax. With your comfort comes security which includes hitech CCTV coverage of the entire facility and fortified 24/7 security.",
+    "At Sentiero Hotels and Suites, we'll give you that luxurious and serene environment that you need to truly relax. Home to affordable luxury hotels in Owerri and Imo State, our suites start from ₦24,500 per night. With your comfort comes security which includes hitech CCTV coverage of the entire facility and fortified 24/7 security.",
   airportPitch:
-    "With just a 2-minutes drive to the Sam Mbakwe Airport, Imo State, Sentiero Hotels and Suites is perfectly situated so you'll never miss your flight ever again.",
-  address: 'Imo State Airport Road (Just 2 minutes from the terminal), Owerri, Imo State, Nigeria',
+    "With just a 2-minute drive to the Sam Mbakwe Airport, Imo State, Sentiero Hotels and Suites is the nearest hotel to Imo Airport. Perfectly situated in Ngor-Okpala on the Owerri-Aba Expressway serving Umuowa and greater Owerri, you'll never miss your flight ever again. Guests also enjoy our outdoor swimming pool — one of the best hotel pools in Owerri and Imo State for relaxation after a long flight.",
+  address: 'Imo State Airport Road (Just 2 minutes from the terminal), Ngor-Okpala, Owerri, Imo State, Nigeria',
   phone: '(+234) 09022842982',
   phoneAlt: '(+234) 09060 121 582',
   phone1Raw: '+2349022842982',
@@ -199,11 +199,11 @@ export const HOTEL_AMENITIES: HotelAmenity[] = [
     image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80',
   },
   {
-    id: 'airport-shuttle',
-    title: 'Airport Shuttle',
-    description: 'We provide swift airport shuttles to and fro the Imo state airport (Sam Mbakwe).',
+    id: 'airport-proximity',
+    title: 'Airport Proximity',
+    description: 'Locate just 1.2 km from Sam Mbakwe Airport (QOW) with direct departures to Lagos and Abuja.',
     icon: 'Plane',
-    badge: '2-Min Transfer Time',
+    badge: '2-Min Drive to Terminal',
     category: 'convenience',
     image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
   },
@@ -261,7 +261,7 @@ export const TESTIMONIALS = [
     name: 'Engr. Kenneth Adeleke',
     role: 'Corporate Executive',
     comment:
-      "Booked the Executive Suite for 4 days. Having a separate living room to receive colleagues without leaving my room was perfect. The airport shuttle was ready at the curb the second my flight landed.",
+      "Booked the Executive Suite for 4 days. Having a separate living room to receive colleagues without leaving my room was perfect. Checked out and caught my morning flight to Lagos in minutes.",
     rating: 5,
     date: '2 weeks ago',
   },
@@ -270,7 +270,7 @@ export const TESTIMONIALS = [
 export const FAQS = [
   {
     q: 'How close is Sentiero Hotels & Suites to Sam Mbakwe Airport?',
-    a: 'We are situated approximately 1.2 kilometers away, which is just a 2-minute drive. Our dedicated airport shuttle runs 24 hours a day to meet incoming and departing flights.',
+    a: 'We are situated approximately 1.2 kilometers away, which is just a 2-minute drive. Check daily non-stop departures to Lagos and Abuja in our Airport Guide before you travel.',
   },
   {
     q: 'Is power supply guaranteed throughout the stay?',
@@ -281,8 +281,8 @@ export const FAQS = [
     a: 'Your safety is our highest priority. The entire facility is covered by high-tech CCTV camera monitoring combined with active professional armed security personnel guarding all access points.',
   },
   {
-    q: 'How do I request an airport shuttle pickup?',
-    a: 'You can message our front desk directly via WhatsApp with your flight arrival details, or contact our 24/7 reception anytime after booking.',
+    q: 'Which flights operate from Sam Mbakwe Airport?',
+    a: 'Sam Mbakwe International Cargo Airport (QOW) offers daily non-stop flights to Lagos (LOS) and Abuja (ABV) on Air Peace and United Nigeria Airlines. Open the Airport Guide section to browse today\'s schedules from QOW.',
   },
   {
     q: 'Can I pay upon arrival at check-in?',

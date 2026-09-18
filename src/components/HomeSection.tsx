@@ -1,6 +1,7 @@
 import React from 'react';
 import { HeroBanner } from './HeroBanner';
 import { HotelFeaturesDark } from './HotelFeaturesDark';
+import { ReceptionSlider } from './ReceptionSlider';
 import { SuiteCard } from './SuiteCard';
 import { SUITES_DATA, TESTIMONIALS } from '../data/hotelData';
 import { RoomSuite, Currency } from '../types/hotel';
@@ -133,7 +134,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                 onClick={onGoToAirport}
                 className="px-6 py-2.5 rounded-full bg-[#CD9A29] text-white text-xs sm:text-sm font-bold hover:bg-[#B88720] transition shadow-md"
               >
-                Airport Guide & Shuttle
+                Airport Guide & Flights
               </button>
             </div>
           </div>
@@ -151,7 +152,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
               <Plane className="w-6 h-6 text-[#CD9A29] mx-auto mb-2" />
-              <h5 className="font-bold text-xs text-white">Airport Shuttle</h5>
+              <h5 className="font-bold text-xs text-white">Airport Proximity</h5>
               <p className="text-[10px] text-white/70 mt-0.5">2 Min Drive</p>
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
@@ -257,7 +258,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-white/90">
                 <CheckCircle2 className="w-4 h-4 text-[#CD9A29] shrink-0" />
-                <span>Airport Shuttle Coordination</span>
+                <span>Airport Arrival Coordination</span>
               </div>
               <div className="flex items-center gap-2 text-xs sm:text-sm text-white/90">
                 <CheckCircle2 className="w-4 h-4 text-[#CD9A29] shrink-0" />
@@ -288,22 +289,9 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Reception Image */}
+          {/* Right Column: Reception Image Slider */}
           <div className="lg:col-span-5">
-            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/15 aspect-[4/3] lg:aspect-auto lg:h-[360px] group">
-              <img
-                src="https://www.sentierohotels.com.ng/wp-content/uploads/2023/01/untitled-8970.jpg"
-                alt="Sentiero Hotels & Suites Reception"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs backdrop-blur-md bg-black/50 px-3.5 py-2.5 rounded-xl border border-white/15">
-                <span className="font-semibold text-white/95">Sentiero Reception & Front Desk</span>
-                <span className="text-[#CD9A29] font-bold">24/7 Dedicated Service</span>
-              </div>
-            </div>
+            <ReceptionSlider />
           </div>
         </div>
       </section>

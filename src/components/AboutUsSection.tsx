@@ -133,7 +133,7 @@ export const AboutUsSection: React.FC<AboutUsSectionProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#CD9A29] shrink-0" />
-              <span>Master Chef local Ofe Owerri & Continental Kitchen</span>
+              <span>Master Chef — Amazing African &amp; Continental Dishes</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#CD9A29] shrink-0" />

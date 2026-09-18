@@ -13,6 +13,28 @@ html, body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
 
+/* Brand lavender panels get a whisper-subtle dot-grid texture (5% opacity) so
+   large surfaces read as refined material instead of flat color. */
+.bg-sentiero-dots {
+  background-color: #F2F2FF;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Ccircle cx='2' cy='2' r='1.1' fill='%23242E51' fill-opacity='0.05'/%3E%3C/svg%3E");
+}
+
+body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Ccircle cx='2' cy='2' r='1.1' fill='%23242E51' fill-opacity='0.05'/%3E%3C/svg%3E");
+}
+
 h1, h2, h3, h4, h5, h6, .font-display {
   font-family: 'Sora', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Reception slider: autoplay progress bar + per-slide caption reveal */
+@keyframes sentiero-reception-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes sentiero-reception-caption {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }

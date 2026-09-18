@@ -53,8 +53,6 @@ export interface Reservation {
   checkInDate: string;
   checkOutDate: string;
   guestsCount: number;
-  airportShuttleRequested: boolean;
-  flightNumber?: string;
   specialRequests?: string;
   totalPriceNgn: number;
   totalPriceUsd: number;

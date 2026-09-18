@@ -12,9 +12,20 @@ import {
   Globe,
 } from 'lucide-react';
 import { SENTIERO_INFO, FAQS } from '../data/hotelData';
-import { GoogleHotelMap } from './GoogleHotelMap';
+import { HotelLocationMap } from './HotelLocationMap';
 import { ErrorBoundary } from './ErrorBoundary';
 import { sendLeadToCrm } from '../services/crmService';
+import {
+  sanitizeText,
+  sanitizeName,
+  sanitizePhone,
+  sanitizeEmail,
+  isValidName,
+  isValidPhone,
+  isValidEmail,
+} from '../utils/sanitize';
+
+const CONTACT_FORMSPREE_ENDPOINT = 'https://formspree.io/f/mdekkoae';
 
 export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -25,23 +36,56 @@ export const ContactSection: React.FC = () => {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState<string>('');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
+
+    const safeName = sanitizeName(formData.name);
+    const safeEmail = sanitizeEmail(formData.email);
+    const safePhone = sanitizePhone(formData.phone);
+    const safeInquiryType = sanitizeText(formData.inquiryType, 120);
+    const safeMessage = sanitizeText(formData.message);
+
+    if (!isValidName(safeName)) {
+      setFormError('Please enter your full name (letters only).');
+      return;
+    }
+    if (safeEmail && !isValidEmail(safeEmail)) {
+      setFormError('Please enter a valid email address.');
+      return;
+    }
+    if (safePhone && !isValidPhone(safePhone)) {
+      setFormError('Please enter a valid phone / WhatsApp number.');
+      return;
+    }
+    if (!safeMessage || safeMessage.length < 5) {
+      setFormError('Please write a message of at least 5 characters.');
+      return;
+    }
+    if (!safeEmail && !safePhone) {
+      setFormError('Please provide an email address or a phone number so we can reply.');
+      return;
+    }
+
     setSubmitted(true);
 
-    sendLeadToCrm({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      source: 'Contact Inquiry',
-      notes: `Inquiry Type: ${formData.inquiryType}. Message: ${formData.message}`,
-      custom_fields: {
-        'Inquiry Type': formData.inquiryType,
-        'Message': formData.message,
+    sendLeadToCrm(
+      {
+        name: safeName,
+        email: safeEmail || undefined,
+        phone: safePhone,
+        source: 'Contact Inquiry',
+        notes: `Inquiry Type: ${safeInquiryType}. Message: ${safeMessage}`,
+        custom_fields: {
+          'Inquiry Type': safeInquiryType,
+          'Message': safeMessage,
+        },
       },
-    });
+      CONTACT_FORMSPREE_ENDPOINT,
+    );
   };
 
   const toggleFaq = (index: number) => {
@@ -59,7 +103,7 @@ export const ContactSection: React.FC = () => {
           Contact Sentiero Hotels & Suites
         </h2>
         <p className="text-xs sm:text-sm text-[#091626]/70 mt-2">
-          We are at your service 24 hours a day, 7 days a week. Reach out for suite inquiries, airport shuttle dispatch, or corporate bookings.
+          We are at your service 24 hours a day, 7 days a week. Reach out for suite inquiries, arrivals coordination, or corporate bookings.
         </p>
       </div>
 
@@ -93,6 +137,11 @@ export const ContactSection: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {formError && (
+                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2" role="alert">
+                  {formError}
+                </p>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#091626] mb-1">
@@ -101,9 +150,10 @@ export const ContactSection: React.FC = () => {
                   <input
                     type="text"
                     required
+                    maxLength={120}
                     placeholder="e.g. Chief Raymond"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, name: sanitizeName(e.target.value) })}
                     className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                   />
                 </div>
@@ -115,9 +165,10 @@ export const ContactSection: React.FC = () => {
                   <input
                     type="tel"
                     required
+                    maxLength={30}
                     placeholder="+234 803 000 0000"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, phone: sanitizePhone(e.target.value) })}
                     className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                   />
                 </div>
@@ -130,9 +181,10 @@ export const ContactSection: React.FC = () => {
                   </label>
                   <input
                     type="email"
+                    maxLength={254}
                     placeholder="name@example.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, email: sanitizeEmail(e.target.value) })}
                     className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                   />
                 </div>
@@ -143,11 +195,11 @@ export const ContactSection: React.FC = () => {
                   </label>
                   <select
                     value={formData.inquiryType}
-                    onChange={(e) => setFormData({ ...formData, inquiryType: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, inquiryType: sanitizeText(e.target.value, 120) })}
                     className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                   >
                     <option value="Room Reservation">Room / Suite Reservation</option>
-                    <option value="Airport Shuttle Pickup">Airport Shuttle Pickup</option>
+                    <option value="Airport Arrival Coordination">Airport Arrival / Pick-Up Help</option>
                     <option value="Master Chef Catering">Restaurant / Event Catering</option>
                     <option value="Executive Meeting Hall">Executive Meeting / Corporate</option>
                     <option value="Security Detail">VIP Security Escort Request</option>
@@ -163,9 +215,10 @@ export const ContactSection: React.FC = () => {
                 <textarea
                   rows={4}
                   required
+                  maxLength={2000}
                   placeholder="Tell us how we can make your visit comfortable..."
                   value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, message: sanitizeText(e.target.value) })}
                   className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                 ></textarea>
               </div>
@@ -323,10 +376,10 @@ export const ContactSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Interactive Google Map & Directions Section */}
+      {/* Exact Location Map & Surrounding Owerri Area */}
       <div id="hotel-map-directions" className="pt-2">
-        <ErrorBoundary fallbackTitle="Sentiero Hotels Map & Route Guidance">
-          <GoogleHotelMap />
+        <ErrorBoundary fallbackTitle="Sentiero Hotels Map & Location">
+          <HotelLocationMap />
         </ErrorBoundary>
       </div>
 

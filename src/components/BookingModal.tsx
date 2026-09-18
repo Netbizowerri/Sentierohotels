@@ -22,6 +22,17 @@ import {
   getTomorrowDateString,
 } from '../utils/formatters';
 import { sendLeadToCrm } from '../services/crmService';
+import {
+  sanitizeText,
+  sanitizeName,
+  sanitizePhone,
+  sanitizeEmail,
+  sanitizeDate,
+  isValidName,
+  isValidPhone,
+  isValidEmail,
+  isValidDate,
+} from '../utils/sanitize';
 
 interface BookingModalProps {
   suite: RoomSuite | null;
@@ -65,31 +76,78 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const totalNgn = ratePerNightNgn * nights;
   const totalUsd = ratePerNightUsd * nights;
 
+  const [validationError, setValidationError] = useState<string>('');
+
   const handleProceedToDetails = (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError('');
+
+    const safeCheckIn = sanitizeDate(checkInDate);
+    const safeCheckOut = sanitizeDate(checkOutDate);
+
+    if (!safeCheckIn || !safeCheckOut) {
+      setValidationError('Please provide a valid check-in and check-out date.');
+      return;
+    }
+    if (calculateNights(safeCheckIn, safeCheckOut) < 1) {
+      setValidationError('Check-out date must be after the check-in date.');
+      return;
+    }
+    if (adults < 1) {
+      setValidationError('Please select at least one adult guest.');
+      return;
+    }
+
     setStep(2);
   };
 
   const handleConfirmReservation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!guestName || !guestPhone) return;
+    setValidationError('');
+
+    const safeGuestName = sanitizeName(guestName);
+    const safeGuestPhone = sanitizePhone(guestPhone);
+    const safeGuestEmail = guestEmail ? sanitizeEmail(guestEmail) : '';
+    const safeSuiteId = sanitizeText(suite.id, 64);
+    const safeCheckIn = sanitizeDate(checkInDate);
+    const safeCheckOut = sanitizeDate(checkOutDate);
+    const safeSpecialRequests = sanitizeText(specialRequests);
+
+    if (!isValidName(safeGuestName)) {
+      setValidationError('Please enter your full name (letters only).');
+      return;
+    }
+    if (!isValidPhone(safeGuestPhone)) {
+      setValidationError('Please enter a valid phone / WhatsApp number.');
+      return;
+    }
+    if (safeGuestEmail && !isValidEmail(safeGuestEmail)) {
+      setValidationError('Please enter a valid email address.');
+      return;
+    }
+    if (!safeCheckIn || !safeCheckOut) {
+      setValidationError('Please provide valid stay dates.');
+      return;
+    }
+    if (!safeSuiteId || !isValidDate(safeCheckIn) || !isValidDate(safeCheckOut)) {
+      setValidationError('Your booking details are invalid. Please try again.');
+      return;
+    }
 
     const reservation: Reservation = {
       id: 'res_' + Date.now(),
       bookingRef: generateBookingRef(),
-      suiteId: suite.id,
-      suiteName: suite.name,
-      suiteImage: suite.coverImage,
+      suiteId: safeSuiteId,
+      suiteName: sanitizeText(suite.name, 120),
+      suiteImage: sanitizeText(suite.coverImage, 500),
       rateType,
-      guestName,
-      guestEmail: guestEmail || 'guest@sentierohotels.com',
-      guestPhone,
-      checkInDate,
-      checkOutDate,
+      guestName: safeGuestName,
+      guestEmail: safeGuestEmail || 'guest@sentierohotels.com',
+      guestPhone: safeGuestPhone,
+      checkInDate: safeCheckIn,
+      checkOutDate: safeCheckOut,
       guestsCount: adults + children,
-      airportShuttleRequested: false,
-      flightNumber: undefined,
-      specialRequests,
+      specialRequests: safeSpecialRequests,
       totalPriceNgn: totalNgn,
       totalPriceUsd: totalUsd,
       status: 'Confirmed',
@@ -100,24 +158,24 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     onReservationComplete(reservation);
     setStep(3);
 
-    // Forward lead securely to Privyr CRM via backend server proxy
+    // Forward booking details to the admin inbox via Formspree
     sendLeadToCrm({
-      name: guestName,
-      email: guestEmail || undefined,
-      phone: guestPhone,
+      name: safeGuestName,
+      email: safeGuestEmail || undefined,
+      phone: safeGuestPhone,
       source: 'Room Booking',
-      notes: `New Room Reservation for ${suite.name} (${nights} night${nights > 1 ? 's' : ''}). Check-in: ${checkInDate}, Check-out: ${checkOutDate}. Guests: ${adults} Adult(s), ${children} Child(ren). Ref: ${reservation.bookingRef}. Special requests: ${specialRequests || 'None'}. Total: ₦${totalNgn.toLocaleString()} ($${totalUsd}).`,
+      notes: `New Room Reservation for ${sanitizeText(suite.name, 120)} (${nights} night${nights > 1 ? 's' : ''}). Check-in: ${safeCheckIn}, Check-out: ${safeCheckOut}. Guests: ${adults} Adult(s), ${children} Child(ren). Ref: ${reservation.bookingRef}. Special requests: ${safeSpecialRequests || 'None'}. Total: ₦${totalNgn.toLocaleString()} ($${totalUsd}).`,
       custom_fields: {
         'Booking Ref': reservation.bookingRef,
-        'Suite Name': suite.name,
-        'Check-In Date': checkInDate,
-        'Check-Out Date': checkOutDate,
+        'Suite Name': sanitizeText(suite.name, 120),
+        'Check-In Date': safeCheckIn,
+        'Check-Out Date': safeCheckOut,
         'Nights': nights,
         'Adults': adults,
         'Children': children,
         'Total NGN': `₦${totalNgn.toLocaleString()}`,
         'Total USD': `$${totalUsd}`,
-        'Special Requests': specialRequests || 'None',
+        'Special Requests': safeSpecialRequests || 'None',
       },
     });
 
@@ -191,10 +249,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 bg-[#F2F2FF]">
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 bg-sentiero-dots">
           {/* STEP 1: Dates & Perks */}
           {step === 1 && (
             <form onSubmit={handleProceedToDetails} className="space-y-4">
+              {validationError && (
+                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2" role="alert">
+                  {validationError}
+                </p>
+              )}
               {/* Suite snapshot */}
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-[#242E51]/10 shadow-xs">
                 <img
@@ -307,6 +370,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           {/* STEP 2: Guest Details */}
           {step === 2 && (
             <form onSubmit={handleConfirmReservation} className="space-y-4">
+              {validationError && (
+                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2" role="alert">
+                  {validationError}
+                </p>
+              )}
               <div>
                 <label className="block text-xs font-semibold text-[#091626] mb-1">
                   Full Name (as on ID) *
@@ -315,8 +383,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   type="text"
                   required
                   placeholder="e.g. Emeka Okafor"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
+value={guestName}
+                    onChange={(e) => setGuestName(sanitizeName(e.target.value))}
                   className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                 />
               </div>
@@ -331,7 +399,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     required
                     placeholder="+234 803 123 4567"
                     value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
+                    onChange={(e) => setGuestPhone(sanitizePhone(e.target.value))}
                     className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                   />
                 </div>
@@ -344,7 +412,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     type="email"
                     placeholder="guest@example.com"
                     value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
+                    onChange={(e) => setGuestEmail(sanitizeEmail(e.target.value))}
                     className="w-full text-xs py-2.5 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                   />
                 </div>
@@ -357,8 +425,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <textarea
                   rows={2}
                   placeholder="Any dietary preferences, early check-in request, or airport arrival note..."
-                  value={specialRequests}
-                  onChange={(e) => setSpecialRequests(e.target.value)}
+value={specialRequests}
+                    onChange={(e) => setSpecialRequests(sanitizeText(e.target.value))}
                   className="w-full text-xs py-2 px-3 rounded-xl border border-[#242E51]/15 bg-white text-[#091626] focus:outline-hidden focus:ring-2 focus:ring-[#CD9A29]"
                 ></textarea>
               </div>
