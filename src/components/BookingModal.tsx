@@ -67,6 +67,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [confirmedReservation, setConfirmedReservation] = useState<Reservation | null>(null);
   const [copiedRef, setCopiedRef] = useState(false);
 
+  const [validationError, setValidationError] = useState<string>('');
+
   if (!isOpen || !suite) return null;
 
   const nights = calculateNights(checkInDate, checkOutDate);
@@ -75,8 +77,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   const totalNgn = ratePerNightNgn * nights;
   const totalUsd = ratePerNightUsd * nights;
-
-  const [validationError, setValidationError] = useState<string>('');
 
   const handleProceedToDetails = (e: React.FormEvent) => {
     e.preventDefault();
