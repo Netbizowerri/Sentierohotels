@@ -1,48 +1,18 @@
 import React from 'react';
-import { X, Bell, Zap, ShieldCheck, Plane, Gift } from 'lucide-react';
+import { X, Bell, ArrowRight, Clock } from 'lucide-react';
+import { BLOG_POSTS, BlogPost } from '../data/blogData';
+import { blogPostUrl } from '../utils/blogSeo';
 
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenPost?: (post: BlogPost) => void;
 }
 
-export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, onClose }) => {
+export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, onClose, onOpenPost }) => {
   if (!isOpen) return null;
 
-  const notifications = [
-    {
-      id: 1,
-      title: '24/7 Solar Grid Status: 100% Active',
-      desc: 'Uninterrupted electricity and air conditioning across all suites.',
-      icon: Zap,
-      time: 'Just now',
-      color: 'text-[#CD9A29] bg-[#CD9A29]/15',
-    },
-    {
-      id: 2,
-      title: 'Daily Non-Stop Flights to Lagos & Abuja',
-      desc: 'Check QOW departure schedules in the Airport Guide — just 2 minutes from the terminal.',
-      icon: Plane,
-      time: '10m ago',
-      color: 'text-[#242E51] bg-[#242E51]/10',
-    },
-    {
-      id: 3,
-      title: '24/7 Security Detail on Duty',
-      desc: 'Round-the-clock professional security and perimeter CCTV active.',
-      icon: ShieldCheck,
-      time: '1 hour ago',
-      color: 'text-[#CD9A29] bg-[#CD9A29]/15',
-    },
-    {
-      id: 4,
-      title: 'Chef Special Tonight at Restaurant',
-      desc: 'Fresh native Ofe Owerri, roasted fish, and continental buffet available.',
-      icon: Gift,
-      time: 'Today',
-      color: 'text-[#242E51] bg-[#242E51]/10',
-    },
-  ];
+  const latestPosts = BLOG_POSTS.slice(0, 4);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
@@ -50,7 +20,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, 
         <div className="p-4 bg-[#242E51] text-white flex items-center justify-between border-b border-[#303D6A]">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-[#CD9A29]" />
-            <h3 className="font-bold text-sm text-white">Hotel Notifications</h3>
+            <h3 className="font-bold text-sm text-white">Latest Stories</h3>
           </div>
           <button
             onClick={onClose}
@@ -61,26 +31,50 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({ isOpen, 
         </div>
 
         <div className="p-4 space-y-3 max-h-96 overflow-y-auto bg-sentiero-dots">
-          {notifications.map((n) => {
-            const Icon = n.icon;
-            return (
-              <div
-                key={n.id}
-                className="flex items-start gap-3 p-3 rounded-2xl bg-white border border-neutral-200 shadow-xs"
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.color}`}>
-                  <Icon className="w-4 h-4" />
+          {latestPosts.map((post) => (
+            <a
+              key={post.id}
+              href={blogPostUrl(post.slug)}
+              onClick={(e) => {
+                e.preventDefault();
+                if (onOpenPost) {
+                  onOpenPost(post);
+                }
+                onClose();
+              }}
+              className="flex items-start gap-3 p-3 rounded-2xl bg-white border border-neutral-200 shadow-xs hover:border-[#CD9A29]/60 hover:shadow-md transition cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-neutral-100">
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <h5 className="font-bold text-xs text-[#091626] truncate">{post.title}</h5>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#CD9A29] shrink-0">
+                    Read <ArrowRight className="w-3 h-3" />
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h5 className="font-bold text-xs text-[#091626] truncate">{n.title}</h5>
-                    <span className="text-[10px] text-neutral-400 shrink-0 ml-1">{n.time}</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-600 mt-0.5 leading-snug">{n.desc}</p>
+                <p className="text-[11px] text-neutral-600 mt-0.5 leading-snug line-clamp-2">{post.excerpt}</p>
+                <div className="flex items-center gap-2 mt-1.5 text-[10px] text-neutral-400">
+                  <span className="px-1.5 py-0.5 rounded-md bg-[#242E51]/10 text-[#242E51] font-bold">
+                    {post.category}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5">
+                    <Clock className="w-3 h-3 text-[#CD9A29]" />
+                    {post.readTime}
+                  </span>
+                  <span>·</span>
+                  <span>{post.date}</span>
                 </div>
               </div>
-            );
-          })}
+            </a>
+          ))}
         </div>
 
         <div className="p-3 border-t border-neutral-200 bg-white text-center">

@@ -475,6 +475,7 @@ export default function App() {
       <NotificationsModal
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
+        onOpenPost={(post: BlogPost) => openBlogPost(post.slug)}
       />
 
       <SearchFilterDrawer
